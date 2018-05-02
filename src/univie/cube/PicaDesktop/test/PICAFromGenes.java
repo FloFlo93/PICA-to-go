@@ -15,6 +15,7 @@ import univie.cube.PicaDesktop.pica.Pica;
 
 public class PICAFromGenes {
 	
+	/* 
 	private final static Path picaCrossvalidateExecutable = Paths.get("libs/PICA/py/crossvalidate.py");
 	
 	private static Path outputResult = Paths.get("/home/florian/Studium/Master_Bioinformatics/4nd_semester/MasterThesis/pica2go/symbiont_model/result_mmseqs_cluster_default");
@@ -42,5 +43,5 @@ public class PICAFromGenes {
 		
 		Pica pica = new Pica(Paths.get(workDir.getTmpDir().getAbsolutePath() + "/pica/" + "inputPica2"), picaCrossvalidateExecutable, outputResult, Paths.get("/home/florian/Studium/Master_Bioinformatics/4nd_semester/MasterThesis/pica2go/symbiont_model/symbiont.phenotype"));
 		pica.crossValPica("SYMBIONT");
-	}
+	} */
 }

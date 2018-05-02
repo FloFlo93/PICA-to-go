@@ -13,7 +13,7 @@ import univie.cube.PicaDesktop.clustering.methods.MMseqsClustering;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
 public class LinclustTests {
-
+/* 
 	public static void main(String[] args) throws IOException, InterruptedException, RuntimeException {
 		Path inputClusteringDir = Paths.get("/home/florian/git/PICADesktop/precalc_prodigal");
 		Path outputDir = Paths.get("/home/florian/git/PICADesktop/output/linclust_tests/e/");
@@ -36,7 +36,7 @@ public class LinclustTests {
 			FileUtils.deleteDirectory(tmpDirClust.toFile());
 		}
 		
-
-	}
+ 
+	} */
 
 }
