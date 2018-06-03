@@ -38,7 +38,7 @@ public abstract class ClusterFiltering {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	public abstract Pair<CrossValPerCutOff, CrossValPerCutOff> filter(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path picaCrossVal, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException;
+	public abstract Pair<CrossValPerCutOff, CrossValPerCutOff> filter(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException;
 	
 
 	
@@ -64,12 +64,12 @@ public abstract class ClusterFiltering {
 	}
 	
 
-	protected Future<Map<String, String>> picaCrossVal(Map<String, BinCOGs> orthogroupsPerBin, Path picaCrossVal, Path inputPhenotypes, String feature, ExecutorService es) throws IOException, InterruptedException {
+	protected Future<Map<String, String>> picaCrossVal(Map<String, BinCOGs> orthogroupsPerBin, Path inputPhenotypes, String feature, ExecutorService es) throws IOException, InterruptedException {
 		Path tmpDir = Files.createTempDirectory(workDir.getTmpDir(), "picaCrossvalFiltering");
 		final String fileName = "picaCrossValInput";
 		MMseqsClustering.writePicaInputFile(orthogroupsPerBin, Paths.get(tmpDir.toString(), fileName.toString()));
 		Path inputPica = Paths.get(tmpDir.toString() + "/" + fileName);
-		PicaCrossvalidate pica = new PicaCrossvalidate(inputPica, picaCrossVal, tmpDir, inputPhenotypes, feature, loggingDir);
+		PicaCrossvalidate pica = new PicaCrossvalidate(inputPica, tmpDir, inputPhenotypes, feature, loggingDir, workDir);
 		CompletableFuture<Map<String, String>> future = CompletableFuture.supplyAsync(() -> pica.call(), es);
 		future.whenComplete((task, throwable) -> {
 			try {
@@ -98,7 +98,7 @@ public abstract class ClusterFiltering {
 	 * @throws ExecutionException
 	 * @throws RuntimeException
 	 */
-	protected Pair<CrossValPerCutOff, CrossValPerCutOff> filterStartPICAThreads(List<Integer> cutoffs, Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, Path picaCrossVal, String feature, int threads) throws IOException, InterruptedException, ExecutionException, RuntimeException {
+	protected Pair<CrossValPerCutOff, CrossValPerCutOff> filterStartPICAThreads(List<Integer> cutoffs, Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException, RuntimeException {
 		CrossValPerCutOff bestCrossValCutoff = new CrossValPerCutOff();
 		CrossValPerCutOff crossValWithoutCutoff = new CrossValPerCutOff();
 		
@@ -114,7 +114,7 @@ public abstract class ClusterFiltering {
 		for(Integer cutoff : cutoffs) {
 			allCOGsToIndex(orthogroups);
 			removeCOGs(orthogroups, cutoff);
-			Future<Map<String, String>> future = picaCrossVal(orthogroupsPerBin, picaCrossVal, pathToInputPhenotypes, feature, es);
+			Future<Map<String, String>> future = picaCrossVal(orthogroupsPerBin, pathToInputPhenotypes, feature, es);
 			picaThreads.put(cutoff, future);
 		}
 		

@@ -11,20 +11,16 @@ public class WorkDir {
 	
 	private Path tmpDir;
 	
-	public WorkDir(String[] subdirectories, boolean debugMode, Path outputResultPath) throws IOException {
-		Path tmpDirPath;
-		if(debugMode) tmpDirPath = Files.createTempDirectory(outputResultPath, "picadesktop");
-		else tmpDirPath = Files.createTempDirectory("picadesktop");
-		this.tmpDir = tmpDirPath; 
-		if(!debugMode) {
-			tmpDir.toFile().deleteOnExit(); //only deleted directory when JVM terminates, not content of dir
-			//deletes work folder when program is shut down
-			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-		        public void run() {
-		            removeWorkDir();
-		        }
-		    }, "removeWorkDirOnShutdown"));
-		}
+	public WorkDir(String[] subdirectories, boolean debugMode, Path tmpDirParent, long inputBinSize) throws IOException, RuntimeException {
+		if(tmpDirParent != null) this.tmpDir = Files.createTempDirectory(tmpDirParent, "picadesktop");
+		else tmpDir = Files.createTempDirectory("picadesktop");
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+	        public void run() {
+	        	if(!debugMode) removeWorkDir();
+	        	else System.err.println("WARNING: The debug mode is turned on.So all tmp files were not deleted. Path to tmp files: " + tmpDir.toString());
+	        }
+	    }, "removeWorkDirOnShutdown"));
+		if (tmpDir.toFile().getFreeSpace() < inputBinSize*5) throw new RuntimeException("The available space in the tmp dir may be not sufficient. Please specify another directory!");
 		
 		String pathTmpDir = tmpDir.toFile().getAbsolutePath();
 		for(String subdirectory : subdirectories) {

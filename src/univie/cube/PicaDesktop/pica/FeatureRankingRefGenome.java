@@ -30,8 +30,8 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 	 * @param refGenomes if null -> all genomes are reference genomes
 	 * @throws IOException
 	 */
-	public FeatureRankingRefGenome(Map<String, String> representativeSequences, Path modelFile, Path outputResults, Path picaExecutable, String feature, Map<String, String> fastaHeaders, List<String> refGenomes, Map<String, COG> orthogroups) throws IOException {
-		super(representativeSequences, modelFile, outputResults, picaExecutable, feature);
+	public FeatureRankingRefGenome(Path modelFile, Path outputResults, String feature, Map<String, String> fastaHeaders, List<String> refGenomes, Map<String, COG> orthogroups) throws IOException {
+		super(modelFile, outputResults, feature);
 		this.fastaHeaders = fastaHeaders;
 		this.refGenomes = refGenomes;
 		this.orthogroups = orthogroups;

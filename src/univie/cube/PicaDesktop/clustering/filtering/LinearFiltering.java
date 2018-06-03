@@ -23,12 +23,12 @@ public class LinearFiltering extends ClusterFiltering {
 	
 	@Override
 	public Pair<CrossValPerCutOff, CrossValPerCutOff> filter(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin,
-			Path pathToInputPhenotypes, Path picaCrossVal, String feature, int threads)
+			Path pathToInputPhenotypes, String feature, int threads)
 			throws IOException, InterruptedException, ExecutionException {
 		int maxClustSize = getMaxClusterSize(orthogroups);
 		final int stepSize = (maxClustSize / 100 == 0) ? 1 : maxClustSize / 100; //filtering in 100 (or less) steps
 		List<Integer> cutoffs = IntStream.rangeClosed(0, maxClustSize).boxed().filter(x -> (x % stepSize) == 0).collect(Collectors.toList());
-		return filterStartPICAThreads(cutoffs, orthogroups, orthogroupsPerBin, pathToInputPhenotypes, picaCrossVal, feature, threads);
+		return filterStartPICAThreads(cutoffs, orthogroups, orthogroupsPerBin, pathToInputPhenotypes, feature, threads);
 	}
 
 }

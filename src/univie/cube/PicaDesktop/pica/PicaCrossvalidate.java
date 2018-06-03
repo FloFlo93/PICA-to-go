@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import univie.cube.PicaDesktop.directories.WorkDir;
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 import univie.cube.PicaDesktop.miscellaneous.Serialize;
 
@@ -14,8 +16,8 @@ public class PicaCrossvalidate extends Pica implements Callable<Map<String, Stri
 	
 	private Path logging;
 
-	public PicaCrossvalidate(Path inputPica, Path picaExecutable, Path outputResults, Path inputPhenotypes, String feature, Path logging) {
-		super(inputPica, picaExecutable, outputResults, inputPhenotypes, feature);
+	public PicaCrossvalidate(Path inputPica, Path outputResults, Path inputPhenotypes, String feature, Path logging, WorkDir workDir) throws IOException {
+		super(inputPica, outputResults, inputPhenotypes, feature, workDir);
 		this.logging = logging;
 	}
 
@@ -24,7 +26,7 @@ public class PicaCrossvalidate extends Pica implements Callable<Map<String, Stri
 	 * @return crossval-json with mean balanced accuracy
 	 */
 	private Map<String, String> crossValPica() throws FileNotFoundException, IOException, InterruptedException {
-		String[] commandPicaCrossVal = {picaExecutable.toString(), "-s", inputPica.toString(), "-c",  inputPhenotypes.toString(), "-t", feature, "-o", outputResults.toString() + "/outputPICA.txt", "-C", outputResults + "/picaCrossValidationStats.json"};  
+		String[] commandPicaCrossVal = {ExecutablePaths.getExecutablePaths().PICA_CROSSVAL.toString(), "-s", inputPica.toString(), "-c",  inputPhenotypes.toString(), "-t", feature, "-o", outputResults.toString() + "/outputPICA.txt", "-C", outputResults + "/picaCrossValidationStats.json"};  
 		CmdExecution.Status status = CmdExecution.execute(commandPicaCrossVal, logging, "pica"); 
 		CmdExecution.printIfErrorOccured(status); 
 		if(status.errorOccured) throw new RuntimeException();

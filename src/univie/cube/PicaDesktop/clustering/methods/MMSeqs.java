@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
 import univie.cube.PicaDesktop.fastaformat.FastaHeaders;
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
 public abstract class MMSeqs {
@@ -47,8 +46,8 @@ public abstract class MMSeqs {
 	protected static Path concatDBs(Path newDB, Path oldDB, Path outputDir, Path outputLog) throws IOException, InterruptedException {
 		Path concatDB = Paths.get(outputDir.toString(), "concatDB.mmseqs");
 		Path concatDB_h = Paths.get(outputDir.toString(), "concatDB.mmseqs_h");
-		String[] command_concatDB = {"mmseqs", "concatdbs", newDB.toString(), oldDB.toString(), concatDB.toString()};
-		String[] command_concatDB_h = {"mmseqs", "concatdbs", newDB.toString() + "_h", oldDB.toString() + "_h", concatDB_h.toString()};
+		String[] command_concatDB = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "concatdbs", newDB.toString(), oldDB.toString(), concatDB.toString()};
+		String[] command_concatDB_h = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "concatdbs", newDB.toString() + "_h", oldDB.toString() + "_h", concatDB_h.toString()};
 		CmdExecution.execute(command_concatDB, outputLog, "dbconcat");
 		CmdExecution.execute(command_concatDB_h, outputLog, "dbconcat_h");
 		return concatDB;

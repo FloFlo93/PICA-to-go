@@ -15,6 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
 import univie.cube.PicaDesktop.fastaformat.FastaValidate;
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution.Status;
 import univie.cube.PicaDesktop.prodigal.Prodigal;
@@ -60,18 +61,27 @@ public class MMSeqsClusterupdate extends MMSeqs {
 		
 		List<Path> genomes = new ArrayList<Path>();
 		List<Path> proteomes = new ArrayList<Path>();
+		List<Path> invalidProteomes = new ArrayList<Path>();
 		
 		for(Path path : allGenomes) {
 			FastaValidate fastaValidate = new FastaValidate(path);
 			if (! fastaValidate.isHeaderUnique()) System.err.println("WARNING: Fasta Header of file " + path.getFileName().toString() + " is not unique. File will be ignored.");
 			else if (fastaValidate.getSequenceType() == FastaValidate.SequenceType.DNA) genomes.add(path);
 			else if (fastaValidate.getSequenceType() == FastaValidate.SequenceType.PROTEIN) proteomes.add(path);
-			else System.err.println("WARNING: Invalid fasta format for file " + path.getFileName().toString() + ". File will be ignored.");
+			else {
+				System.err.println("WARNING: Invalid fasta format for file " + path.getFileName().toString() + ". Forbidden characters will be replaced by 'X'.");
+				invalidProteomes.add(path);
+			}
 		}
 		
 		Prodigal.runProdigal(threads, genomes, clusteringDirGenes, outputLog);
 		
 		for(Path path : proteomes) Files.copy(path, Paths.get(clusteringDirGenes.toString(), path.getFileName().toString()));
+		
+		for(Path path : invalidProteomes) {
+			List<String> correctedLines = FastaValidate.removeInvalidChars(Files.readAllLines(path));
+			Files.write(Paths.get(clusteringDirGenes.toString(), path.getFileName().toString()), correctedLines);
+		}
 		
 		Files.walk(clusteringDirGenes).filter(path -> Files.isRegularFile(path)).forEach(file -> {
 			String fileName = file.getFileName().toString();
@@ -89,7 +99,7 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	
 	private Path createInputSeqDB(Path inputForSeqDB) throws IOException, InterruptedException {
 		Path seqDBNewFiles = Files.createTempFile(clusteringDir, "inputSeqDB_newFiles", ".mmseqs");
-		String[] commandCreateSeqDB = {"mmseqs", "createdb", inputForSeqDB.toString(), seqDBNewFiles.toString()};
+		String[] commandCreateSeqDB = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "createdb", inputForSeqDB.toString(), seqDBNewFiles.toString()};
 		Status statusCreateDB = CmdExecution.execute(commandCreateSeqDB, outputLog, "mmseqs-createdb", clusteringDir.toFile());
 		if(statusCreateDB.errorOccured) throw new RuntimeException("createdb failed");
 		
@@ -100,7 +110,7 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	private Path clusterupdateCommand(Path concatSeqDB, int threads) throws IOException, InterruptedException {
 		String mappedSeq = clusteringDir.toString() + File.separator + "mappedSeq" + ".mmseqs";
 		String newClust = clusteringDir.toString() + File.separator + "newClust" + ".mmseqs";
-		String[] commandUpdateSeqDB = {"mmseqs", "clusterupdate", clusteringDir.toString() + File.separator + inputDbName, concatSeqDB.toString(), clusteringDir.toString() + File.separator + clustDbName, mappedSeq.toString(), newClust.toString(), "tmp"};
+		String[] commandUpdateSeqDB = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "clusterupdate", clusteringDir.toString() + File.separator + inputDbName, concatSeqDB.toString(), clusteringDir.toString() + File.separator + clustDbName, mappedSeq.toString(), newClust.toString(), "tmp"};
 		
 		Status status = CmdExecution.execute(commandUpdateSeqDB, outputLog, "clusterupdate", Files.createTempDirectory(clusteringDir, "mmseqs_clusterupdate_tmp").toFile());
 		if(! status.errorOccured) return createTsv(mappedSeq, newClust);
@@ -109,7 +119,7 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	
 	private Path createTsv(String seqDB, String clustDB) throws IOException, InterruptedException {
 		Path newSeqClustTsv = Files.createTempFile(clusteringDir, "newSeqClust", ".tsv");
-		String[] commandCreateTsv = {"mmseqs", "createtsv", seqDB.toString(), seqDB.toString(), clustDB.toString(), newSeqClustTsv.toString()};
+		String[] commandCreateTsv = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "createtsv", seqDB.toString(), seqDB.toString(), clustDB.toString(), newSeqClustTsv.toString()};
 		Status status = CmdExecution.execute(commandCreateTsv, outputLog, "createtsv");
 		if(status.errorOccured) return null;
 		else return newSeqClustTsv;

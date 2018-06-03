@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
 public class Prodigal implements Runnable {
@@ -41,7 +42,7 @@ public class Prodigal implements Runnable {
 		int filePrefixIndex = inputFile.getFileName().toString().lastIndexOf(".");
 		if(filePrefixIndex == -1) filePrefixIndex = inputFile.getFileName().toString().length();
 		String outputProdigal = inputClusteringDir +"/" + inputFile.getFileName().toString().substring(0, filePrefixIndex) + ".fa";
-		String[] commandProdigal = {"prodigal", "-i", inputProdigal, "-a", outputProdigal};
+		String[] commandProdigal = {ExecutablePaths.getExecutablePaths().PRODIGAL_EX.toString(), "-i", inputProdigal, "-a", outputProdigal};
 		System.out.println(Arrays.toString(commandProdigal));
 		try {
 			status = CmdExecution.execute(commandProdigal, outputResults, "prodigal");

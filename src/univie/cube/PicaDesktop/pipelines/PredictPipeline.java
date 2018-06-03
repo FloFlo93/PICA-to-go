@@ -38,6 +38,7 @@ public class PredictPipeline extends Pipeline {
 	private Path outputResults;
 	private boolean debugMode;
 	private int threads;
+	private Path tmpDir = null;
 	
 	private WorkDir workDir;
 	
@@ -57,7 +58,11 @@ public class PredictPipeline extends Pipeline {
 		//-----------WorkDir-creation-----------//
 		
 		try {
-			workDir = new WorkDir(new String[] {}, true, outputResults);
+			long folderSizeInputBins = Files.walk(inputFiles)
+					.filter(p -> p.toFile().isFile())
+					.mapToLong(p -> p.toFile().length())
+					.sum();
+			workDir = new WorkDir(new String[] {}, debugMode, tmpDir, dbFileZip.toFile().length() + folderSizeInputBins);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -121,8 +126,8 @@ public class PredictPipeline extends Pipeline {
 		
 		//-----PICA-TEST--------------------------------------//
 		
-		PicaTest picaTest = new PicaTest(picaInput, picaTestExecutable, outputResults, featureName, modelFile);
 		try {
+			PicaTest picaTest = new PicaTest(picaInput, picaTestExecutable, outputResults, featureName, modelFile);
 			picaTest.call();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,6 +158,8 @@ public class PredictPipeline extends Pipeline {
 		options.addOption(debugOpt);
 		Option threadsOpt = new Option("t", true, "number of threads, default: all available cores");
 		options.addOption(threadsOpt);
+		Option tmpDirOpt = new Option("tmp_dir", false, "Specify a directory for tmp files. By default /tmp/ will be used. All tmp files are are deleted when program terminates");
+		options.addOption(tmpDirOpt);
 		
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = null; //program will terminate if try block fails, so this is a save workaround
@@ -174,5 +181,6 @@ public class PredictPipeline extends Pipeline {
 		debugMode = cmd.hasOption("d");
 		String threadsStr = cmd.getOptionValue("t");
 		threads = parseThreads(threadsStr);
+		tmpDir = Paths.get(cmd.getOptionValue("tmp_dir"));
 	}
 }

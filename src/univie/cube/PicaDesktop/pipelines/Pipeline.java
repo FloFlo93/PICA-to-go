@@ -1,6 +1,5 @@
 package univie.cube.PicaDesktop.pipelines;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -24,6 +24,7 @@ import univie.cube.PicaDesktop.directories.WorkDir;
 import univie.cube.PicaDesktop.fastaformat.FastaValidate;
 import univie.cube.PicaDesktop.miscellaneous.ClusteringProgram;
 import univie.cube.PicaDesktop.pica.PicaTrain;
+import univie.cube.PicaDesktop.pipelines.TrainPipeline.Annotation;
 import univie.cube.PicaDesktop.prodigal.Prodigal;
 
 public abstract class Pipeline {
@@ -31,10 +32,11 @@ public abstract class Pipeline {
 	public abstract void startPipeline(String[] args);
 	
 	//orthogroups / orthogroupsPerBin
-	protected Map<String, COG> orthogroups;
-	protected Map<String, BinCOGs> orthogroupsPerBin;
+	protected Map<String, COG> orthogroups = null;
+	protected Map<String, BinCOGs> orthogroupsPerBin = null;
+	protected Clustering clusteringInstance = null;
 	
-	protected Map<String, String> representativeSeq;
+	//protected Map<String, String> representativeSeq;
 	
 	protected Path modelFile = null;
 
@@ -110,22 +112,31 @@ public abstract class Pipeline {
 	 * @throws IOException 
 	 */
 	protected void inputFastaProcessing(int threads, Path inputBins, Path inputClusteringDir, Path outputResults, boolean debugMode, WorkDir workDir) throws IOException {
-		File[] allFiles = inputBins.toFile().listFiles();
+		List<Path> allFiles = Files.walk(inputBins).filter(Files::isRegularFile).collect(Collectors.toList());
 		List<Path> genomes = new ArrayList<Path>();
 		List<Path> proteomes = new ArrayList<Path>();
+		List<Path> invalidProteomes = new ArrayList<Path>();
 		
-		for(File file : allFiles) {
-			FastaValidate fastaValidate = new FastaValidate(file.toPath());
-			if(!fastaValidate.isHeaderUnique()) System.err.println("WARNING: The fasta header of " + file.getName() + " is not unique. This file will not be processed");
-			else if (fastaValidate.getSequenceType() == FastaValidate.SequenceType.DNA) genomes.add(file.toPath());
-			else if (fastaValidate.getSequenceType() == FastaValidate.SequenceType.PROTEIN) proteomes.add(file.toPath());
-			else System.err.println("WARNING: " + file.getName() + " is not a valid fasta file. This file will be ignored");
+		for(Path path : allFiles) {
+			FastaValidate fastaValidate = new FastaValidate(path);
+			if(!fastaValidate.isHeaderUnique()) System.err.println("WARNING: The fasta header of " + path.getFileName().toString() + " is not unique. This file will not be processed");
+			else if (fastaValidate.getSequenceType() == FastaValidate.SequenceType.DNA) genomes.add(path);
+			else if (fastaValidate.getSequenceType() == FastaValidate.SequenceType.PROTEIN) proteomes.add(path);
+			else {
+				System.err.println("WARNING: " + path.getFileName().toString() + " is not a valid fasta file. All invalid characters are converted to 'X'.");
+				invalidProteomes.add(path);
+			}
 		}
 		
 		findGenes(threads, genomes, inputClusteringDir, outputResults, debugMode, workDir);
 		
 		for(Path path : proteomes) {
 			Files.copy(path, Paths.get(inputClusteringDir.toString(), path.getFileName().toString()));
+		}
+		
+		for(Path path : invalidProteomes) {
+			List<String> correctedLines = FastaValidate.removeInvalidChars(Files.readAllLines(path));
+			Files.write(Paths.get(inputClusteringDir.toString(), path.getFileName().toString()), correctedLines);
 		}
 	}
 	
@@ -141,27 +152,22 @@ public abstract class Pipeline {
 	 * @param threads
 	 * @return Pair<orthogroups, orthogroupsPerBin>; orthogroups -> Map<String, COG>, orthogroupsPerBin -> Map<String, BinCOGs>
 	 */
-	protected void clustering(ClusteringProgram clusteringProgram, Path inputClusteringDir, Path outputResults, boolean debugMode, WorkDir workDir, int threads) {
-		Map<String, COG> orthogroups = null;
-		Map<String, BinCOGs> orthogroupsPerBin = null;
-		Map<String, String> representativeSeq = null;
-		
+	protected void clustering(ClusteringProgram clusteringProgram, Path inputClusteringDir, Path outputResults, Annotation annotation, boolean debugMode, WorkDir workDir, int threads) {
+
 		try {
-	    	Clustering clustering;
 			if(clusteringProgram.equals(ClusteringProgram.MMSEQS_CLUSTER)) {
-				clustering = new MMseqsClustering(inputClusteringDir, outputResults, outputResults);
+				clusteringInstance = new MMseqsClustering(inputClusteringDir, outputResults, outputResults);
 			}
 			else {
-				clustering = new LinclustClustering(inputClusteringDir, outputResults);
+				clusteringInstance = new LinclustClustering(inputClusteringDir, outputResults);
 			}
 			
-			clustering.runClustering(threads);
-			clustering.createZippedDBFile();
-			orthogroups = clustering.getOrthogroups();
-			orthogroupsPerBin = clustering.getOrthogroupsPerBin();
-			representativeSeq = clustering.getRepresentativeSequences();
+			clusteringInstance.runClustering(threads);
+			clusteringInstance.createZippedDBFile();
+			orthogroups = clusteringInstance.getOrthogroups();
+			orthogroupsPerBin = clusteringInstance.getOrthogroupsPerBin();
 
-	    } catch (IOException | RuntimeException | InterruptedException e1) {
+		} catch (IOException | RuntimeException | InterruptedException e1) {
 			System.err.println("ERROR: Clustering process(" + clusteringProgram.toString().toLowerCase() + ")failed");
 			e1.printStackTrace();
 			if(!debugMode) {
@@ -172,10 +178,6 @@ public abstract class Pipeline {
 			System.out.println("timestamp: " + timestampExceptionOrtho);
 			System.exit(20);
 		}
-		
-		this.orthogroupsPerBin = orthogroupsPerBin;
-		this.orthogroups = orthogroups;
-		this.representativeSeq = representativeSeq;
 	}
 	
 
@@ -192,10 +194,10 @@ public abstract class Pipeline {
 	 * 
 	 * @return json string with crossvalidation
 	 */
-	protected Pair<String, String> filterCluster(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, WorkDir workDir, Path inputPhenotypes, Path picaCrossvalidateExecutable, String feature, int threads, boolean debugMode, Path loggingDir) {
+	protected Pair<String, String> filterCluster(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, WorkDir workDir, Path inputPhenotypes, String feature, int threads, boolean debugMode, Path loggingDir) {
 		LinearFiltering clusterFiltering = new LinearFiltering(workDir, loggingDir);
 		try {
-			Pair<CrossValPerCutOff, CrossValPerCutOff> crossVal = clusterFiltering.filter(orthogroups, orthogroupsPerBin, inputPhenotypes, picaCrossvalidateExecutable, feature, threads);
+			Pair<CrossValPerCutOff, CrossValPerCutOff> crossVal = clusterFiltering.filter(orthogroups, orthogroupsPerBin, inputPhenotypes, feature, threads);
 			return Pair.of(crossVal.getLeft().toString(), crossVal.getRight().toString());
 		} catch (IOException | InterruptedException | ExecutionException | RuntimeException e) {
 			System.err.println("ERROR: Process filterCluster failed");
@@ -219,9 +221,9 @@ public abstract class Pipeline {
 	 * @param inputPhenotypes
 	 * @param feature
 	 */
-	protected void picaTrain(Path inputPicaFile, Path picaTrainExecutable, Path outputResults, Path inputPhenotypes, String feature, WorkDir workDir) {
+	protected void picaTrain(Path inputPicaFile, Path outputResults, Path inputPhenotypes, String feature, WorkDir workDir) {
 		try {
-			PicaTrain pica = new PicaTrain(inputPicaFile, picaTrainExecutable, outputResults, inputPhenotypes, feature, workDir);
+			PicaTrain pica = new PicaTrain(inputPicaFile, outputResults, inputPhenotypes, feature, workDir);
 			pica.call();
 			modelFile = pica.getModelFile();
 		} catch (Exception e) {

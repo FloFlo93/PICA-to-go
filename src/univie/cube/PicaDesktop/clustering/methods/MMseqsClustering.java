@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import univie.cube.PicaDesktop.archive.ZipCreator;
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
 
@@ -45,19 +47,20 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	 * @param addOptions: additional options to cluster command (mmseqs linclust)
 	 */
 	public void runClustering(int threadNum, String[] addOptions) throws IOException, InterruptedException, RuntimeException {
+		String mmseqsEx = ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString();
 		Path inputFile = concatInputFiles(clusteringDirInput);
 		String inputDbName = "DB_input.mmseqs";
 		String resultDbName = "DB_clustering.mmseqs";
 		
-		String[] commandCreateDB = {"mmseqs", "createdb", inputFile.getFileName().toString(), inputDbName};
-		String[] commandClust = {"mmseqs", clusteringCommandHook(), inputDbName, resultDbName, "tmp", "--threads",Integer.toString(threadNum)};
+		String[] commandCreateDB = {mmseqsEx, "createdb", inputFile.getFileName().toString(), inputDbName};
+		String[] commandClust = {mmseqsEx, clusteringCommandHook(), inputDbName, resultDbName, "tmp", "--threads",Integer.toString(threadNum)};
 		commandClust = ArrayUtils.addAll(commandClust, addOptions);
 		System.out.println(Arrays.toString(commandClust));
-		String[] commandCreateTsv = {"mmseqs", "createtsv", inputDbName, inputDbName, resultDbName, tsvClustFileName};
+		String[] commandCreateTsv = {mmseqsEx, "createtsv", inputDbName, inputDbName, resultDbName, tsvClustFileName};
 		CmdExecution.Status status = CmdExecution.execute(commandCreateDB, outputLogFiles, "clust_createdb", clusteringDirInput.toFile());
 		CmdExecution.printIfErrorOccured(status);
 		if(status.errorOccured) throw new RuntimeException();
-		//inputFile.toFile().delete();
+		inputFile.toFile().delete();
 		CmdExecution.Status status2 = CmdExecution.execute(commandClust, outputLogFiles, "clust", clusteringDirInput.toFile());
 		CmdExecution.printIfErrorOccured(status2);
 		if(status2.errorOccured) throw new RuntimeException();
@@ -109,9 +112,9 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	}
 	
 	@Override
-	public Map<String, String> getRepresentativeSequences() throws IOException, InterruptedException {
+	public Optional<String> getRepresentativeSequence(String key) throws IOException, InterruptedException {
 		MMSeqsRepresentative representatives = new MMSeqsRepresentative(Paths.get(clusteringDirInput.toString(), inputDbName), Paths.get(clusteringDirInput.toString(), resultDbName), clusteringDirInput);
-		return representatives.getAll();
+		return representatives.get(key);
 	}
 
 	@Override

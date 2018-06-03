@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,17 +30,8 @@ import univie.cube.PicaDesktop.pica.FeatureRankingBlast;
 import univie.cube.PicaDesktop.pica.FeatureRankingRefGenome;
 import univie.cube.PicaDesktop.pica.PicaCrossvalidate;
 
-//TODO: extend debug option (log files only in debug mode)
+//TODO: extend debug option (log files only in debug mode, useful ?)
 
-//TODO: logging of java program (maybe debug mode as cmd argument?)
-
-//TODO: testing, training and crossvalidation options
-
-//TODO: store all commands (that are called) in config file and read them in the beginning
-
-//TODO: file/folder format -> unique (avoid switching between Path, String etc.)
-
-//TODO: evaluate if cmd combination is useful or should be avoided (e.g. when the cmd command is a lot shorter than Java)
 
 
 public class TrainPipeline extends Pipeline {
@@ -55,21 +47,20 @@ public class TrainPipeline extends Pipeline {
 	private Annotation annotation;
 	private List<String> refGenomes;
 	private boolean filterCOGs;
+	private Path tmpDir = null;
+	
 	
 	//predefined constant variables
 	private static final String inputClusteringDirName = "clustering";
 	private static final String inputPicaDirName = "pica";
 	private static final String picaInputFileName = "picaInput";
-	private static final Path picaCrossvalidateExecutable = Paths.get("libs/PICA/py/crossvalidate.py");
-	private static final Path picaTrainExecutable = Paths.get("libs/PICA/py/train.py");
-	private static final Path picaFeatureExtractionExecutable = Paths.get("libs/PICA/py/svmFeatureRanking.py");
 	
 	//temporary folder
 	private WorkDir workDir = null;
 	private Path inputClusteringDir;
 	private Path inputPicaDir;
 	
-	private static enum Annotation {REFGENOMES, BLAST}
+	public static enum Annotation {REFGENOMES, BLAST}
 	
 	
 	public void startPipeline(String[] args) {
@@ -80,8 +71,14 @@ public class TrainPipeline extends Pipeline {
 		
 		
 		inputArgsParsing(args);
+		
 		if(! filesExist(new Path[] {inputPhenotypes}, new Path[] {inputBins, outputResults})) {
 			System.err.println("FATAL: One of the arguments [i, o, p] did not point to an existing file/folder");
+			System.exit(2);
+		}
+		
+		if(tmpDir != null && !filesExist(new Path[] {}, new Path[] {tmpDir})) {
+			System.err.println("FATAL: tmp_dir did not point to an existing folder");
 			System.exit(2);
 		}
 		
@@ -101,13 +98,20 @@ public class TrainPipeline extends Pipeline {
 		
 		String[] workDirArg =  {inputClusteringDirName, inputPicaDirName};
 		try {
-			workDir = new WorkDir(workDirArg, debugMode, outputResults);
+			long folderSizeInputBins = Files.walk(inputBins)
+											.filter(p -> p.toFile().isFile())
+											.mapToLong(p -> p.toFile().length())
+											.sum();
+			workDir = new WorkDir(workDirArg, debugMode, tmpDir, folderSizeInputBins);
 			inputClusteringDir = Paths.get(workDir.getTmpDir() + "/" + inputClusteringDirName);
 			inputPicaDir = Paths.get(workDir.getTmpDir() + "/" + inputPicaDirName);
 		} catch (IOException e) {
 			System.err.println("tmp dir could not be created");
 			e.printStackTrace();
 			System.exit(5);
+		} catch(RuntimeException e) {
+			System.err.println("FATAL ERROR: " + e.getMessage());
+			System.exit(6);
 		}
 				
 		
@@ -130,7 +134,7 @@ public class TrainPipeline extends Pipeline {
 		java.sql.Timestamp timestamp2 = new java.sql.Timestamp(System.currentTimeMillis());
 		System.out.println("start Clustering, starttime: " + timestamp2);
 		
-		clustering(clusteringProgram, inputClusteringDir, outputResults, debugMode, workDir, threads);
+		clustering(clusteringProgram, inputClusteringDir, outputResults, annotation, debugMode, workDir, threads);
 		
 	    long timeClusteringEnd = System.nanoTime();
 	    
@@ -141,7 +145,7 @@ public class TrainPipeline extends Pipeline {
 	    
 	    if(filterCOGs) {
 	    
-		    Pair<String, String> crossValJson = filterCluster(orthogroups, orthogroupsPerBin, workDir, inputPhenotypes, picaCrossvalidateExecutable, feature, threads, debugMode, outputResults);
+		    Pair<String, String> crossValJson = filterCluster(orthogroups, orthogroupsPerBin, workDir, inputPhenotypes, feature, threads, debugMode, outputResults);
 		    try {
 				Serialize.writeToFile(Paths.get(outputResults.toString(), "crossval.json"), crossValJson.getRight());
 				Serialize.writeToFile(Paths.get(outputResults.toString(), "crossvalNoFiltering.json"), crossValJson.getLeft());
@@ -162,8 +166,16 @@ public class TrainPipeline extends Pipeline {
 				e.printStackTrace();
 				System.exit(20);
 			}
-	    	PicaCrossvalidate picaCrossVal = new PicaCrossvalidate(inputPica, picaCrossvalidateExecutable, tmpPicaCrossVal, inputPhenotypes, feature, outputResults);
-	    	Map<String, String> crossValResult = picaCrossVal.call();
+	    	PicaCrossvalidate picaCrossVal;
+	    	Map<String, String> crossValResult = new HashMap<String, String>();
+			try {
+				picaCrossVal = new PicaCrossvalidate(inputPica, tmpPicaCrossVal, inputPhenotypes, feature, outputResults, workDir);
+				crossValResult = picaCrossVal.call();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				System.exit(21);
+				//TODO: error message
+			}
 	    	String resultStr = Serialize.mapToJson(crossValResult);
 	    	try {
 				Serialize.writeToFile(Paths.get(outputResults.toString(), "crossval.json"), resultStr);
@@ -198,7 +210,7 @@ public class TrainPipeline extends Pipeline {
 		System.out.println("start Pica, starttime: " + timestamp3);
 	    
 		
-		picaTrain(Paths.get(inputPicaDir.toString() + "/" + picaInputFileName), picaTrainExecutable, outputResults, inputPhenotypes, feature, workDir);
+		picaTrain(Paths.get(inputPicaDir.toString() + "/" + picaInputFileName), outputResults, inputPhenotypes, feature, workDir);
 		
 		long timePICAStart = System.nanoTime();
 		
@@ -212,10 +224,10 @@ public class TrainPipeline extends Pipeline {
 		try {
 			FeatureRanking featureRanking;
 			if(annotation == Annotation.BLAST)
-				featureRanking = new FeatureRankingBlast(representativeSeq, modelFile, outputResults, picaFeatureExtractionExecutable, feature);
+				featureRanking = new FeatureRankingBlast(modelFile, outputResults, feature, super.clusteringInstance);
 			else  {
 				Map<String, String> fastaHeaders = FastaHeaders.getFastaHeaders(this.inputBins);
-				featureRanking = new FeatureRankingRefGenome(representativeSeq, modelFile, outputResults, picaFeatureExtractionExecutable, feature, fastaHeaders, refGenomes, orthogroups);
+				featureRanking = new FeatureRankingRefGenome(modelFile, outputResults, feature, fastaHeaders, refGenomes, orthogroups);
 			}
 			featureRanking.runFeatureRanking();
 		} catch (IOException | InterruptedException e) {
@@ -248,13 +260,11 @@ public class TrainPipeline extends Pipeline {
 		phenotype.setRequired(true);
 		options.addOption(phenotype);
 		Option debugModeOpt = new Option("d", false, "debug mode (e.g. tmp dir in output folder); optional");
-		debugModeOpt.setRequired(false);
 		options.addOption(debugModeOpt);
-		Option clusteringOpt = new Option("c", true, "clustering program {mmseqs_linclust, mmseqs_cluster}; required");
+		Option clusteringOpt = new Option("c", true, "clustering program {mmseqs_linclust, mmseqs_cluster}; default: mmseqs_cluster");
 		clusteringOpt.setRequired(true);
 		options.addOption(clusteringOpt);
 		Option threadsOpt = new Option("t", true, "number of threads; default: maximal available threads on system");
-		threadsOpt.setRequired(false);
 		options.addOption(threadsOpt);
 		Option featureOpt = new Option("f", true, "feature for pica model to consider; required"); //TODO: multiple options (second step), check if exists before starting pipeline
 		featureOpt.setRequired(true);
@@ -266,6 +276,8 @@ public class TrainPipeline extends Pipeline {
 		options.addOption(refgenomesOpt);
 		Option filterCOGsOpt = new Option("filter", false, "Reduces number of COGs (by size limit) based on improvements of balanced accuracy in crossvalidation. Will increase accuracy");
 		options.addOption(filterCOGsOpt);
+		Option tmpDirOpt = new Option("tmp_dir", true, "Specify a directory for tmp files. By default /tmp/ will be used. All tmp files are are deleted when program terminates");
+		options.addOption(tmpDirOpt);
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = null; //program will terminate if try block fails, so this is a save workaround
 		try {
@@ -297,14 +309,22 @@ public class TrainPipeline extends Pipeline {
 			clusteringProgram = ClusteringProgram.valueOf(clusteringProgramStr);
 		}
 		catch(RuntimeException e) {
-			clusteringProgram = ClusteringProgram.MMSEQS_CLUSTER;
-			System.out.println("WARNING: invalid argument for option [c] or [w], default options will be used");
+			System.err.println("Invalid option for parameter [-c]");
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("pica-to-go train" , options );
+			System.exit(63);
 		}
 		
 		filterCOGs = cmd.hasOption("filter");
+		
+		//System.out.println(cmd.getOptionValue("tmp_dir"));
+		tmpDir = (cmd.getOptionValue("tmp_dir") != null) ? Paths.get(cmd.getOptionValue("tmp_dir")) : null;
+		//System.out.println(tmpDir.toString());
 	}
 	
-
+	public static class cmdArguments {
+		
+	} 
 	
 
 }

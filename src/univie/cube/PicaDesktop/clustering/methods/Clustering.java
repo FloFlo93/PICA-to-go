@@ -3,6 +3,7 @@ package univie.cube.PicaDesktop.clustering.methods;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
@@ -17,5 +18,5 @@ public interface Clustering {
 	public void preparePicaInput(Path file) throws IOException;
 	public void runClustering(int threadNum, String[] additionalOpt) throws IOException, InterruptedException, RuntimeException;
 	public void createZippedDBFile() throws IOException, RuntimeException;
-	Map<String, String> getRepresentativeSequences() throws IOException, InterruptedException;
+	Optional<String> getRepresentativeSequence(String key) throws IOException, InterruptedException;
 }

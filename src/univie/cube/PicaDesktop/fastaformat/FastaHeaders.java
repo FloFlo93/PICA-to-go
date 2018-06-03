@@ -43,7 +43,6 @@ public class FastaHeaders {
 	
 	public static void renameHeader(Path inputFile) throws IOException, InterruptedException {
 		String fileName = inputFile.getFileName().toString();
-		System.out.println("rename header called for " + fileName);
 		String fileNameWithoutSuffix;
 		fileNameWithoutSuffix = getFileNameWithoutSuffix(fileName);
 		String command = "awk '/^>/ {$0=\"" + ">" + fileNameWithoutSuffix + "^_" + "\"substr($0,2)}1' " +  fileName + " &> " + fileNameWithoutSuffix + ".tmp && mv " + fileNameWithoutSuffix + ".tmp " + fileName;
@@ -52,7 +51,7 @@ public class FastaHeaders {
 		if(status.errorOccured) throw new RuntimeException();
 	}
 	
-	private static String getFileNameWithoutSuffix(String fileName) {
+	public static String getFileNameWithoutSuffix(String fileName) {
 		String fileNameWithoutSuffix;
 		if(fileName.contains(".") 
 				&& fileName.substring(fileName.lastIndexOf("."), fileName.length()).matches(".fasta|.fna|.fa|.faa")) fileNameWithoutSuffix = fileName.substring(0, fileName.lastIndexOf("."));

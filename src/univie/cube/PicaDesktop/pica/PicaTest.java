@@ -7,14 +7,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
 public class PicaTest extends Pica implements Callable<Void> {
 
 	private Path modelFile;
 	
-	public PicaTest(Path inputPica, Path picaExecutable, Path outputResults, String feature, Path modelFile) {
-		super(inputPica, picaExecutable, outputResults, null, feature);
+	public PicaTest(Path inputPica, Path picaExecutable, Path outputResults, String feature, Path modelFile) throws IOException {
+		super(inputPica, outputResults, null, feature, null);
 		this.modelFile = modelFile;
 	}
 
@@ -25,7 +26,7 @@ public class PicaTest extends Pica implements Callable<Void> {
 	}
 	
 	private void testPica() throws IOException, InterruptedException {
-		String[] commandTestPica = {picaExecutable.toString(), "-s", inputPica.toString(), "-m", modelFile.toString(), "-t", feature};
+		String[] commandTestPica = {ExecutablePaths.getExecutablePaths().PICA_TEST.toString(), "-s", inputPica.toString(), "-m", modelFile.toString(), "-t", feature};
 		System.out.println(Arrays.toString(commandTestPica));
 		Path outputPica = Files.createFile(Paths.get(outputResults.toString(), "outputPica.txt"));
 		CmdExecution.executePipeToFile(commandTestPica, outputPica.toFile(), null);

@@ -39,40 +39,13 @@
 	</dependency>
 	<dependency>
 	    <groupId>org.biojava</groupId>
-	    <artifactId>biojava-core</artifactId>
-	    <version>4.2.11</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.biojava</groupId>
-	    <artifactId>biojava-alignment</artifactId>
-	    <version>4.2.11</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.biojava</groupId>
-	    <artifactId>biojava-structure</artifactId>
-	    <version>4.2.11</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.biojava/biojava-ontology -->
-	<dependency>
-	    <groupId>org.biojava</groupId>
-	    <artifactId>biojava-ontology</artifactId>
-	    <version>4.2.11</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.biojava/biojava-phylo -->
-	<dependency>
-	    <groupId>org.biojava</groupId>
-	    <artifactId>biojava-phylo</artifactId>
-	    <version>4.2.11</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.biojava</groupId>
-	    <artifactId>biojava-genome</artifactId>
-	    <version>4.2.11</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.biojava</groupId>
 	    <artifactId>biojava-ws</artifactId>
 	    <version>4.2.11</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.google.guava</groupId>
+	    <artifactId>guava</artifactId>
+	    <version>25.0-jre</version>
 	</dependency>
   </dependencies>
 </project>

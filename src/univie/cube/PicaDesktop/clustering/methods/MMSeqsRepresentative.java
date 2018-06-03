@@ -5,11 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-
+import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution.Status;
 
@@ -18,33 +17,40 @@ public class MMSeqsRepresentative {
 	private Path sequenceDB;
 	private Path resultDB;
 	private Path subDirTmp;
+	private Path fastaOut;
+	private Path dbOut;
+	
 	
 	public MMSeqsRepresentative(Path sequenceDB, Path resultDB, Path workDirPath) throws IOException {
 		this.sequenceDB = sequenceDB;
 		this.resultDB = resultDB;
 		this.subDirTmp = Files.createTempDirectory(workDirPath, "mmseqs_representative");
+		this.dbOut = Paths.get(subDirTmp.toString(), "repSeqDB");
+		this.fastaOut = Paths.get(subDirTmp.toString(), "repSeqDB.fasta");
 	}
 	
-	public Map<String, String> getAll() throws IOException, InterruptedException {
-		Path dbOut = Paths.get(subDirTmp.toString(), "repSeqDB");
-		Path fastaOut = Paths.get(subDirTmp.toString(), "repSeqDB.fasta");
-		String[] commandRepSeq = {"mmseqs", "result2repseq", sequenceDB.toString(), resultDB.toString(), dbOut.toString()};
-		String[] commandSeqTFlat = {"mmseqs", "result2flat", sequenceDB.toString(), sequenceDB.toString(), dbOut.toString(), fastaOut.toString(), "--use-fasta-header"};
+	public Optional<String> get(String key) throws IOException, InterruptedException {
+		if(! Files.exists(fastaOut)) runRepSeq();
+		return searchFastaFile(key, fastaOut);
+	}
+	
+	private void runRepSeq() throws IOException, InterruptedException, RuntimeException {
+		String[] commandRepSeq = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "result2repseq", sequenceDB.toString(), resultDB.toString(), dbOut.toString()};
+		String[] commandSeqTFlat = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "result2flat", sequenceDB.toString(), sequenceDB.toString(), dbOut.toString(), fastaOut.toString(), "--use-fasta-header"};
 		Status status1 = CmdExecution.execute(commandRepSeq);
 		Status status2 = CmdExecution.execute(commandSeqTFlat);
 		if(status1.errorOccured || status2.errorOccured) throw new RuntimeException("rep seq extraction failed");
-		String[] singleEntry = Files.readAllLines(fastaOut)
-									.stream()
-									.collect(Collectors.joining("\n"))
-									.split(">");
-		FileUtils.deleteDirectory(subDirTmp.toFile());
-		return Arrays.stream(singleEntry)
-			.collect(Collectors.toMap(
-				entry -> entry.split("\n")[0].split("\\s+")[0],
-				entry -> Arrays.stream(entry.split("\n")).skip(1).collect(Collectors.joining())
-			));
-			
 	}
 	
+	private Optional<String> searchFastaFile(String key, Path fastaOut) throws IOException {
+		String[] singleEntry = Files.readAllLines(fastaOut)
+				.stream()
+				.collect(Collectors.joining("\n"))
+				.split(">");
+		return Arrays.stream(singleEntry)
+						.filter(x -> x.split("\n")[0].split("\\s+")[0].equals(key)) //checks if any keys are in the fasta header
+						.map(entry -> entry.split("\n")[0].split("\\s+")[0])
+						.findAny();
+	}
 	
 }
