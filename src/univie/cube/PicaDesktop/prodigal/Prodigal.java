@@ -2,26 +2,29 @@ package univie.cube.PicaDesktop.prodigal;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import univie.cube.PicaDesktop.directories.WorkDir;
 import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
+import univie.cube.PicaDesktop.out.error.ErrorHandler;
+import univie.cube.PicaDesktop.out.logging.CustomLogger;
 
 public class Prodigal implements Runnable {
 	
-	private Path outputResults; 
 	private Path inputFile;
 	private Path inputClusteringDir;
 
 
-	public static void runProdigal(int maxThreads, List<Path> inputBinsNucleotide, Path inputClusteringDir, Path outputResults) throws InterruptedException {
+	public static void runProdigal(int maxThreads, List<Path> inputBinsNucleotide, Path inputClusteringDir) throws InterruptedException {
+		if(inputBinsNucleotide.size() == 0) return;
+		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Gene prediction with Prodigal started");
 		ExecutorService es = Executors.newWorkStealingPool(maxThreads);
 		for(Path path : inputBinsNucleotide) {
-			Prodigal prodigal = new Prodigal(path, inputClusteringDir, outputResults);
+			Prodigal prodigal = new Prodigal(path, inputClusteringDir);
 			es.execute(prodigal);
 		}
 		es.shutdown();
@@ -29,10 +32,9 @@ public class Prodigal implements Runnable {
 							
 	}
 
-	private Prodigal(Path inputFile, Path inputClusteringDir, Path outputResults) {
+	private Prodigal(Path inputFile, Path inputClusteringDir) {
 		this.inputFile = inputFile;
 		this.inputClusteringDir = inputClusteringDir;
-		this.outputResults = outputResults;
 	}
 	
 	@Override
@@ -43,14 +45,12 @@ public class Prodigal implements Runnable {
 		if(filePrefixIndex == -1) filePrefixIndex = inputFile.getFileName().toString().length();
 		String outputProdigal = inputClusteringDir +"/" + inputFile.getFileName().toString().substring(0, filePrefixIndex) + ".fa";
 		String[] commandProdigal = {ExecutablePaths.getExecutablePaths().PRODIGAL_EX.toString(), "-i", inputProdigal, "-a", outputProdigal};
-		System.out.println(Arrays.toString(commandProdigal));
 		try {
-			status = CmdExecution.execute(commandProdigal, outputResults, "prodigal");
+			status = CmdExecution.execute(commandProdigal, WorkDir.getWorkDir().getTmpDir(), "prodigal");
 			CmdExecution.printIfErrorOccured(status);
 			if(status.errorOccured) throw new RuntimeException();
 		} catch (IOException | InterruptedException | RuntimeException e) {
-			System.err.println("WARNING: Process Prodigal failed for " + inputFile.getFileName().toString());
-			//TODO: fatal error if no sequence (of all) could be processed
+			(new ErrorHandler(e, ErrorHandler.ErrorWeight.WARNING, "Process Prodigal failed for " + inputFile.getFileName().toString())).handle();
 		}
 	}
 	

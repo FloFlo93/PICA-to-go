@@ -15,12 +15,15 @@ import univie.cube.PicaDesktop.clustering.datatypes.COG;
 import univie.cube.PicaDesktop.fastaformat.FastaHeaders;
 import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
+import univie.cube.PicaDesktop.miscellaneous.CmdExecution.Status;
 
 public abstract class MMSeqs {
 	
 	protected Map<String, BinCOGs> orthogroupsPerBin = null;
 	protected Map<String, COG> orthogroups = null;
 
+	protected Map<String, String> fastaHeaders;
+	
 	/**concats all *fa files to all.fa and renames the header before (filename will be added: filename_)
 	 * 
 	 * @param inputFolder
@@ -28,7 +31,7 @@ public abstract class MMSeqs {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	protected static Path concatInputFiles(Path inputFolder) throws IOException, InterruptedException {
+	protected Path concatInputFiles(Path inputFolder) throws IOException, InterruptedException {
 		Path outputFile = Files.createTempFile(inputFolder, "", ".fa.all");
 		List<Path> listOfFiles = Files.list(inputFolder).filter(path -> !path.toString().substring(path.toString().length() - 7).equals(".fa.all")).collect(Collectors.toList());
 		for(Path file : listOfFiles) {
@@ -43,13 +46,14 @@ public abstract class MMSeqs {
 	}
 
 	
-	protected static Path concatDBs(Path newDB, Path oldDB, Path outputDir, Path outputLog) throws IOException, InterruptedException {
+	protected Path concatDBs(Path newDB, Path oldDB, Path outputDir, Path outputLog) throws IOException, InterruptedException {
 		Path concatDB = Paths.get(outputDir.toString(), "concatDB.mmseqs");
 		Path concatDB_h = Paths.get(outputDir.toString(), "concatDB.mmseqs_h");
 		String[] command_concatDB = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "concatdbs", newDB.toString(), oldDB.toString(), concatDB.toString()};
 		String[] command_concatDB_h = {ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString(), "concatdbs", newDB.toString() + "_h", oldDB.toString() + "_h", concatDB_h.toString()};
-		CmdExecution.execute(command_concatDB, outputLog, "dbconcat");
-		CmdExecution.execute(command_concatDB_h, outputLog, "dbconcat_h");
+		Status status = CmdExecution.execute(command_concatDB, outputLog, "dbconcat");
+		Status status_h = CmdExecution.execute(command_concatDB_h, outputLog, "dbconcat_h");
+		if(status.errorOccured || status_h.errorOccured) throw new RuntimeException();
 		return concatDB;
 	}
 	
@@ -108,9 +112,8 @@ public abstract class MMSeqs {
 		this.orthogroupsPerBin = orthogroupsPerBinTmp;
 	}
 	
-	private static String getBinNameFromString(String str) {
+	private String getBinNameFromString(String str) {
 		String[] strSplit = str.split("\\^_");
 		return strSplit[0];
 	}
-	
 }

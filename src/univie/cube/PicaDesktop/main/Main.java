@@ -3,14 +3,18 @@ package univie.cube.PicaDesktop.main;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 
 import univie.cube.PicaDesktop.global.ExecutablePaths;
+import univie.cube.PicaDesktop.out.error.ErrorHandler;
 import univie.cube.PicaDesktop.pipelines.Pipeline;
 import univie.cube.PicaDesktop.pipelines.PredictPipeline;
 import univie.cube.PicaDesktop.pipelines.TrainPipeline;
 
 public class Main {
+	
+	private static final String help_info = "PICA-to-go\n\n A program to train/predict PICA models.\n Author: Florian Piewald, 2018\n\n Two programs are available in this package:\n - train\n - predict\n\n For detailed information, view the user guide and the documentation at: https://github.com/FloFlo93/PICA-to-go/ \n";
 
 	public static void main(String[] args) {
 		
@@ -24,19 +28,24 @@ public class Main {
 		else if(mode.equals("train")) {
 			pipeline = new TrainPipeline();
 		}
-		else {
-			if (! mode.equals("")) System.err.println("FATAL ERROR " + mode + " is an unknown mode, known modes: {predict,train}");
-			else System.err.println("FATAL ERROR: No mode specified, known modes: {predict,train}");
-			System.exit(1);
+		else if(mode.equals("-h")) {
+			System.out.println(help_info);
+			System.exit(0);
 		}
-		
+		else {
+			if (! mode.equals("")) {
+				(new ErrorHandler(new InvalidParameterException(), ErrorHandler.ErrorWeight.FATAL, mode + " is an unknown mode, known modes: {predict,train}")).handle();
+			}
+			else {
+				(new ErrorHandler(new InvalidParameterException(), ErrorHandler.ErrorWeight.FATAL, "No mode specified, known modes: {predict,train}")).handle();
+			}
+		}
 		//----check if script was launched from launch script-------------------------------//
 		//(needed to check if dependencies are available, to compile prodigal and find right mmseqs version depending on CPU architecture
 		
 		boolean calledFromLauncher = (args[args.length-1].equals("launcher") ? true : false);
 		if(! calledFromLauncher) {
-			System.err.println("FATAL ERROR: It seems that you tried to execute the .jar file directly without using the launcher script. Please use the launcher script!");
-			System.exit(1);
+			(new ErrorHandler(new RuntimeException(), ErrorHandler.ErrorWeight.FATAL, "It seems that you tried to execute the .jar file directly without using the launcher script. Please use the launcher script!")).handle();
 		}
 		
 		//----initialize global variables (path of executables)------------------------//
@@ -45,9 +54,7 @@ public class Main {
 			Path jarDir = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
 			ExecutablePaths.initialize(Paths.get(jarDir.toString(), "config"));
 		} catch (IllegalArgumentException | IllegalAccessException | IOException e) {
-			e.printStackTrace();
-			System.err.println("Fatal Error: Configuration file could not be processed");
-			System.exit(1);
+			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "Configuration file could not be processed")).handle();
 		}
 		
 		//----start pipeline------------------------------------------------------//

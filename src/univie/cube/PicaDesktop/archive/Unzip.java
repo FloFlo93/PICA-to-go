@@ -24,8 +24,10 @@ public class Unzip {
 			int len;
 			while((len = zis.read(buffer)) > 0) {
 				fos.write(buffer, 0, len);
+				fos.flush();
 			}
 			fos.close();
+			zis.closeEntry();
 			zipEntry = zis.getNextEntry();
 		}
 		zis.closeEntry();

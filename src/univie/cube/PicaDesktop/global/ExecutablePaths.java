@@ -40,7 +40,6 @@ public class ExecutablePaths {
 			try {
 				return f.get(executablePathsTmp) == null;
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
 				return true;
 			}
 		});
@@ -50,6 +49,11 @@ public class ExecutablePaths {
 	}
 	
 	public static ExecutablePaths getExecutablePaths() {
+		return executablePaths;
+	}
+	
+	//TODO: change to this method and delete getExecutablePaths
+	public static ExecutablePaths getInstance() {
 		return executablePaths;
 	}
 	

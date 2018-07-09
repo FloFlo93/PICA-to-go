@@ -6,27 +6,20 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
+import univie.cube.PicaDesktop.clustering.methods.MMseqsClustering;
 import univie.cube.PicaDesktop.directories.WorkDir;
 import univie.cube.PicaDesktop.fastaformat.FastaHeaders;
+import univie.cube.PicaDesktop.out.error.ErrorHandler;
 
-//TODO: Callable is implemented, but concurracy is never used!!
 
 public abstract class Pica {
-	protected Path inputPica;
-	protected Path outputResults;
-	protected Path inputPhenotypes;
-	protected String feature;
 	
-	public Pica(Path inputPica, Path outputResults, Path inputPhenotypes, String feature, WorkDir workDir) throws IOException {
-		this.inputPica = inputPica;
-		this.inputPhenotypes = correctInputPhenotypes(inputPhenotypes, workDir);
-		this.outputResults = outputResults;
-		this.feature = feature;
-	}
 	
-	private Path correctInputPhenotypes(Path inputPhenotypes, WorkDir workDir) throws IOException {
+	public static Path correctInputPhenotypes(Path inputPhenotypes) throws IOException {
 		if(inputPhenotypes == null) return null;
 		List<String> content = Files.readAllLines(inputPhenotypes);
 		List<String> contentCorrected = new ArrayList<String>();
@@ -44,11 +37,26 @@ public abstract class Pica {
 			++counter;
 		}
 		
-		Path dest = Files.createTempFile(workDir.getTmpDir(), "inputPhenotypes", "");
+		Path dest = Files.createTempFile(WorkDir.getWorkDir().getTmpDir(), "inputPhenotypes", "");
 		Files.write(dest, contentCorrected);
 		return dest;
 	}
 	
+	
+	public static Path createInputPica(Path dir, Map<String, BinCOGs> orthogroupsPerBin, String pattern) {
+		Path inputPicaForTrain = null;
+		try {
+			inputPicaForTrain = Files.createTempFile(dir, "input-pica_" + pattern, "");
+			MMseqsClustering.writePicaInputFile(orthogroupsPerBin, inputPicaForTrain);
+		} catch (IOException e) {
+			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "input-pica could not be generated")).handle();
+		}
+		return inputPicaForTrain;
+	}
+	
+	public static Path createInputPica(Map<String, BinCOGs> orthogroupsPerBin, String pattern) {
+		return createInputPica(WorkDir.getWorkDir().getTmpDir(), orthogroupsPerBin, pattern);
+	}
 }
 	
 

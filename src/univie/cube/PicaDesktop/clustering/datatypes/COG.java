@@ -68,19 +68,6 @@ public class COG implements Comparable<COG> {
 	public Set<String> getGenes() {
 		return genes;
 	}
-	
-	/**
-	 * 
-	 * @param position
-	 * @return naming of orthogroup based on the Orthofinder naming convention (OG0000000, OG0000001...)
-	 */
-	public static String getCogName(long position) {
-		String base = "OG0000000";
-		int cut = String.valueOf(position).length();
-		String cogName = base.substring(0, base.length() - 1 - cut);
-		cogName += String.valueOf(position);
-		return cogName;
-	}
 
 	@Override
 	public int compareTo(COG cog) {

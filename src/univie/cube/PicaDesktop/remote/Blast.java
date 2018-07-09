@@ -28,17 +28,15 @@ public class Blast {
 	/**
 	 * 
 	 * @return Pair (left: accessionNumber, right: recName) of top result
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
+	 * @throws Exception 
 	 */
-	public String runBlast() throws ParserConfigurationException, SAXException, IOException {
+	public String runBlast() throws Exception {
 		InputStream in = remoteBlast();
 		String result = parseXML(in);
 		return removeForbiddenCharacters(result);
 	}
 	
-	private InputStream remoteBlast() {
+	private InputStream remoteBlast() throws Exception {
 		
 		//source-code from: http://biojava.org/wiki/BioJava:CookBook3:NCBIQBlastService; modified 
 		
@@ -62,10 +60,6 @@ public class Blast {
 	        InputStream in = service.getAlignmentResults(rid, outputProps);
 	        return in;
 	        
-	    } catch (Exception e) {
-	        System.out.println(e.getMessage());
-	        e.printStackTrace();
-	        return null;
 	    } finally {
 	        service.sendDeleteRequest(rid);
 	    }
@@ -89,7 +83,6 @@ public class Blast {
         String recName = "";
         NodeList childs = topHit.getChildNodes();
         for(int i=0; i<childs.getLength(); i++) {
-        	System.out.println(childs.item(i).getNodeName());
         	if (childs.item(i).getNodeName().equals("Hit_def")) recName = childs.item(i).getTextContent();
         	else if (childs.item(i).getNodeName().equals("Hit_id")) recId = childs.item(i).getTextContent();
         }

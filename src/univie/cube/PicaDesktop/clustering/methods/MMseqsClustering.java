@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +20,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import univie.cube.PicaDesktop.archive.ZipCreator;
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
+import univie.cube.PicaDesktop.directories.WorkDir;
+import univie.cube.PicaDesktop.fastaformat.FastaHeaders;
 import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
@@ -28,7 +29,6 @@ import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 public class MMseqsClustering extends MMSeqs implements Clustering {
 	
 	private Path clusteringDirInput;
-	private Path outputLogFiles;
 	private Path outputDB;
 	
 	private static final String tsvClustFileName = "clu.tsv";
@@ -37,9 +37,8 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	private static final String zippedDBName = "database.mmseqs";
 	
 
-	public MMseqsClustering(Path clusteringDirInput, Path outputLogFiles, Path outputDB) {
+	public MMseqsClustering(Path clusteringDirInput, Path outputDB) {
 		this.clusteringDirInput = clusteringDirInput;
-		this.outputLogFiles = outputLogFiles;
 		this.outputDB = outputDB;
 	}
 	
@@ -49,23 +48,23 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	public void runClustering(int threadNum, String[] addOptions) throws IOException, InterruptedException, RuntimeException {
 		String mmseqsEx = ExecutablePaths.getExecutablePaths().MMSEQS_EX.toString();
 		Path inputFile = concatInputFiles(clusteringDirInput);
+		initializeFastaHeaders(inputFile);
 		String inputDbName = "DB_input.mmseqs";
 		String resultDbName = "DB_clustering.mmseqs";
 		
 		String[] commandCreateDB = {mmseqsEx, "createdb", inputFile.getFileName().toString(), inputDbName};
 		String[] commandClust = {mmseqsEx, clusteringCommandHook(), inputDbName, resultDbName, "tmp", "--threads",Integer.toString(threadNum)};
 		commandClust = ArrayUtils.addAll(commandClust, addOptions);
-		System.out.println(Arrays.toString(commandClust));
 		String[] commandCreateTsv = {mmseqsEx, "createtsv", inputDbName, inputDbName, resultDbName, tsvClustFileName};
-		CmdExecution.Status status = CmdExecution.execute(commandCreateDB, outputLogFiles, "clust_createdb", clusteringDirInput.toFile());
+		CmdExecution.Status status = CmdExecution.execute(commandCreateDB, WorkDir.getWorkDir().getTmpDir(), "clust_createdb", clusteringDirInput.toFile());
 		CmdExecution.printIfErrorOccured(status);
 		if(status.errorOccured) throw new RuntimeException();
 		inputFile.toFile().delete();
-		CmdExecution.Status status2 = CmdExecution.execute(commandClust, outputLogFiles, "clust", clusteringDirInput.toFile());
+		CmdExecution.Status status2 = CmdExecution.execute(commandClust, WorkDir.getWorkDir().getTmpDir(), "clust", clusteringDirInput.toFile());
 		CmdExecution.printIfErrorOccured(status2);
 		if(status2.errorOccured) throw new RuntimeException();
 		FileUtils.deleteDirectory(Paths.get(clusteringDirInput.toString(), "tmp").toFile());
-		CmdExecution.Status status3 = CmdExecution.execute(commandCreateTsv, outputLogFiles, "clust_createtsv", clusteringDirInput.toFile());
+		CmdExecution.Status status3 = CmdExecution.execute(commandCreateTsv, WorkDir.getWorkDir().getTmpDir(), "clust_createtsv", clusteringDirInput.toFile());
 		CmdExecution.printIfErrorOccured(status3);
 		if(status3.errorOccured) throw new RuntimeException();
 		
@@ -91,6 +90,15 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 		return "cluster";
 	}
 	
+	private void initializeFastaHeaders(Path concatProteomeFile) {
+		super.fastaHeaders = FastaHeaders.getFastaHeadersFromConcatProteomes(concatProteomeFile);
+	}
+	
+	@Override
+	public Map<String, String> getFastaHeaders() {
+		return super.fastaHeaders;
+	}
+	
 	@Override
 	public void runClustering(int threadNum) throws IOException, InterruptedException, RuntimeException {
 		runClustering(threadNum, new String[0]);
@@ -113,8 +121,8 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	
 	@Override
 	public Optional<String> getRepresentativeSequence(String key) throws IOException, InterruptedException {
-		MMSeqsRepresentative representatives = new MMSeqsRepresentative(Paths.get(clusteringDirInput.toString(), inputDbName), Paths.get(clusteringDirInput.toString(), resultDbName), clusteringDirInput);
-		return representatives.get(key);
+		MMSeqsRepresentative.initializeSingleton(Paths.get(clusteringDirInput.toString(), inputDbName), Paths.get(clusteringDirInput.toString(), resultDbName), clusteringDirInput);
+		return MMSeqsRepresentative.getInstance().get(key);
 	}
 
 	@Override
@@ -125,7 +133,7 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	
 	private void readResultFileAndParseClustOutput() throws IOException {
 		List<Path> clustOutput = Files.walk(clusteringDirInput).filter(path -> path.endsWith(tsvClustFileName)).collect(Collectors.toList());
-		if (clustOutput.size() != 1) throw new RuntimeException("Internal error: Exactly one clu.tsv file should be in output; found " + clustOutput.size());
+		if (clustOutput.size() != 1) throw new RuntimeException("Exactly one clu.tsv file should be in output; found " + clustOutput.size());
 		parseClustOutput(clustOutput.get(0));
 		clustOutput.get(0).toFile().delete();
 	}

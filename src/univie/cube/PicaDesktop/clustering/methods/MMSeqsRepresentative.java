@@ -21,12 +21,26 @@ public class MMSeqsRepresentative {
 	private Path dbOut;
 	
 	
-	public MMSeqsRepresentative(Path sequenceDB, Path resultDB, Path workDirPath) throws IOException {
+	private MMSeqsRepresentative(Path sequenceDB, Path resultDB, Path workDirPath) throws IOException {
 		this.sequenceDB = sequenceDB;
 		this.resultDB = resultDB;
 		this.subDirTmp = Files.createTempDirectory(workDirPath, "mmseqs_representative");
 		this.dbOut = Paths.get(subDirTmp.toString(), "repSeqDB");
 		this.fastaOut = Paths.get(subDirTmp.toString(), "repSeqDB.fasta");
+	}
+	
+	private static MMSeqsRepresentative instance = null;
+	
+	public static boolean initializeSingleton(Path sequenceDB, Path resultDB, Path workDirPath) throws IOException {
+		if(MMSeqsRepresentative.instance != null) return false;
+		else {
+			MMSeqsRepresentative.instance = new MMSeqsRepresentative(sequenceDB, resultDB, workDirPath);
+			return true;
+		}
+	}
+	
+	public static MMSeqsRepresentative getInstance() {
+		return MMSeqsRepresentative.instance;
 	}
 	
 	public Optional<String> get(String key) throws IOException, InterruptedException {
@@ -49,7 +63,7 @@ public class MMSeqsRepresentative {
 				.split(">");
 		return Arrays.stream(singleEntry)
 						.filter(x -> x.split("\n")[0].split("\\s+")[0].equals(key)) //checks if any keys are in the fasta header
-						.map(entry -> entry.split("\n")[0].split("\\s+")[0])
+						.map(entry -> entry.split("\n")[1])
 						.findAny();
 	}
 	

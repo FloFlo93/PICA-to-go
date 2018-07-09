@@ -15,17 +15,25 @@ import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution.Status;
 
-public class PicaTrain extends Pica implements Callable<Void> {
+public class PicaTrain implements Callable<Void> {
+	
+	private Path inputPica;
+	private Path outputResults;
+	private Path inputPhenotypes;
+	private String feature;
 	
 	private final String ruleFileName;
 	private Path resultDirTmp;
 	private String zippedModelName;
 	
 
-	public PicaTrain(Path inputPica, Path outputResults, Path inputPhenotypes, String feature, WorkDir workDir) throws IOException {
-		super(inputPica, outputResults, inputPhenotypes, feature, workDir);
-		ruleFileName = (new StringBuilder(feature + "_rules.pica")).toString();
-		this.resultDirTmp = Files.createTempDirectory(workDir.getTmpDir(), "pica_train");
+	public PicaTrain(Path inputPica, Path outputResults, Path inputPhenotypes, String feature) throws IOException {
+		this.inputPica = inputPica;
+		this.outputResults = outputResults;
+		this.inputPhenotypes = inputPhenotypes;
+		this.feature = feature;
+		this.ruleFileName = (new StringBuilder(feature + "_rules.pica")).toString();
+		this.resultDirTmp = Files.createTempDirectory(WorkDir.getWorkDir().getTmpDir(), "pica_train");
 		this.zippedModelName = feature + ".picamodel";
 	}
 
@@ -38,7 +46,7 @@ public class PicaTrain extends Pica implements Callable<Void> {
 		resultFilePathStr = s.toString();
 		
 		String[] picaTrainCommand = {ExecutablePaths.getExecutablePaths().PICA_TRAIN.toString(), "-s", inputPica.toString(), "-c", inputPhenotypes.toString(), "-o", resultFilePathStr, "-t", feature, "-b", "1"};
-		Status status = CmdExecution.execute(picaTrainCommand, outputResults, "pica-train");
+		Status status = CmdExecution.execute(picaTrainCommand, WorkDir.getWorkDir().getTmpDir(), "pica-train");
 		CmdExecution.printIfErrorOccured(status); 
 		if(status.errorOccured) throw new RuntimeException();
 		

@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import univie.cube.PicaDesktop.out.logging.CustomLogger;
+
 public class CmdExecution {
 	
 	private static Map<Integer, Process> processes = new HashMap<Integer, Process>();
@@ -24,7 +26,7 @@ public class CmdExecution {
 	        public void run() {
 	            for(Map.Entry<Integer, Process> process : processes.entrySet()) process.getValue().destroy(); 
 	        }
-	    }, "removeWorkDirOnShutdown"));
+	    }, "destroyProcessesOnShutdown"));
 	}
 
 	//execute command without permanent stdout log file
@@ -34,7 +36,7 @@ public class CmdExecution {
 	
 	public static Status executePipedSubprocess(String command) throws IOException, InterruptedException {
 		return executePipedSubprocess(command, null);
-	}
+	} 
 	
 	//TODO: change to Path
 	public static Status executePipedSubprocess(String command, File startFromDirectory) throws IOException, InterruptedException {
@@ -111,11 +113,8 @@ public class CmdExecution {
 	
 	public static void printIfErrorOccured(Status status) {
 		if (status.errorOccured) {
-			System.err.println("ERROR occured");
-			System.err.println(status.errorCode);
-			System.err.println();
-			System.err.println("ORIGINAL COMMAND: ");
-			System.err.println(status.command);
+			String errorMessage = "ERROR occured in subprocess \n ORIGINAL COMMAND: " + status.command;
+			CustomLogger.getInstance().log(CustomLogger.LoggingWeight.ERROR, errorMessage);
 		}
 	}
 	

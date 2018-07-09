@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
+import univie.cube.PicaDesktop.out.logging.CustomLogger;
 
 public class Serialize {
 	
@@ -31,10 +33,31 @@ public class Serialize {
 	}
 	
 	public static void writeToFile(Path outputPath, String content) throws IOException {
+		outputPath = incrementNameIfFileExists(outputPath);
 		Path file = Files.createFile(outputPath);
 		BufferedWriter writer = Files.newBufferedWriter(file);
 		writer.write(content);
 		writer.close();
+	}
+	
+	public static void writeToFile(Path outputPath, byte[] content) throws IOException {
+		outputPath = incrementNameIfFileExists(outputPath);
+		Path file = Files.createFile(outputPath);
+		Files.write(file, content);
+	}
+	
+	public static Path incrementNameIfFileExists(Path outputPath) {
+		Path outputPathOriginal = outputPath;
+		int counter = 0;
+		while(outputPath.toFile().exists()) {
+			outputPath = Paths.get(outputPathOriginal.toString() + "(" + counter + ")");
+			++counter;
+		}
+		if(counter > 0) {
+			String message = outputPathOriginal.getFileName().toString() + " already exists in the output directory, the name has been changed to " + outputPath.getFileName().toString(); 
+			CustomLogger.getInstance().log(CustomLogger.LoggingWeight.WARNING, message);
+		}
+		return outputPath;
 	}
 	
 	public static Map<String, COG> getOrthogroupsFromFile(Path path) throws IOException {

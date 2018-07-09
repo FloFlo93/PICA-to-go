@@ -2,12 +2,14 @@ package univie.cube.PicaDesktop.pica;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
+import univie.cube.PicaDesktop.miscellaneous.Serialize;
 
 public class FeatureRankingRefGenome extends FeatureRanking {
 
@@ -40,17 +42,10 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 	@Override
 	protected String getAnnotation(String representativeSeq) {
 		representativeSeq = representativeSeq.replaceAll("\\s+","");
-		
-		if(refGenomes == null) return fastaHeaders.get(representativeSeq);
+		if(refGenomes == null) 
+			return fastaHeaders.get(representativeSeq);
 		else {
-			System.out.println("singleSeqId " + representativeSeq);
 			Set<String> allGenesOfCluster = orthogroups.get(representativeSeq).getGenes();
-			
-			System.out.println("allGenesOfCluster");
-			System.out.println(allGenesOfCluster.toString());
-			System.out.println("ref genome");
-			System.out.println(refGenomes);
-			
 			Optional<String> alternativeRepSeq = allGenesOfCluster.stream()
 										.filter(gene -> refGenomes.contains(gene.split("\\^_")[0]))
 										.findAny();
@@ -65,11 +60,6 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 	@Override
 	protected int getLimitLines() {
 		return this.limitLines;
-	}
-
-	@Override
-	protected int getLimitFeaturesForGroup() {
-		return this.limitFeaturesForGroup;
 	}
 	
 

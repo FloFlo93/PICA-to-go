@@ -13,12 +13,17 @@ import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 import univie.cube.PicaDesktop.miscellaneous.Serialize;
 
 public class PicaCrossvalidate extends Pica implements Callable<Map<String, String>> {
-	
-	private Path logging;
 
-	public PicaCrossvalidate(Path inputPica, Path outputResults, Path inputPhenotypes, String feature, Path logging, WorkDir workDir) throws IOException {
-		super(inputPica, outputResults, inputPhenotypes, feature, workDir);
-		this.logging = logging;
+	private Path inputPica;
+	private Path outputResults;
+	private Path inputPhenotypes;
+	private String feature;
+	
+	public PicaCrossvalidate(Path inputPica, Path outputResults, Path inputPhenotypes, String feature) throws IOException {
+		this.inputPica = inputPica;
+		this.outputResults = outputResults; 
+		this.inputPhenotypes = inputPhenotypes; 
+		this.feature = feature;
 	}
 
 	
@@ -27,7 +32,7 @@ public class PicaCrossvalidate extends Pica implements Callable<Map<String, Stri
 	 */
 	private Map<String, String> crossValPica() throws FileNotFoundException, IOException, InterruptedException {
 		String[] commandPicaCrossVal = {ExecutablePaths.getExecutablePaths().PICA_CROSSVAL.toString(), "-s", inputPica.toString(), "-c",  inputPhenotypes.toString(), "-t", feature, "-o", outputResults.toString() + "/outputPICA.txt", "-C", outputResults + "/picaCrossValidationStats.json"};  
-		CmdExecution.Status status = CmdExecution.execute(commandPicaCrossVal, logging, "pica"); 
+		CmdExecution.Status status = CmdExecution.execute(commandPicaCrossVal, WorkDir.getWorkDir().getTmpDir(), "pica-crossval"); 
 		CmdExecution.printIfErrorOccured(status); 
 		if(status.errorOccured) throw new RuntimeException();
 		Map<String, String> crossVal = Serialize.getFromFile(Paths.get(outputResults + "/picaCrossValidationStats.json"));

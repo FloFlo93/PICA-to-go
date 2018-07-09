@@ -5,7 +5,7 @@ import java.nio.file.Path;
 public class LinclustClustering extends MMseqsClustering {
 
 	public LinclustClustering(Path clusteringDirInput, Path outputLogFiles) {
-		super(clusteringDirInput, outputLogFiles, outputLogFiles);
+		super(clusteringDirInput, outputLogFiles);
 	}
 	
 	@Override

@@ -9,8 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import univie.cube.PicaDesktop.directories.WorkDir;
 import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
+import univie.cube.PicaDesktop.miscellaneous.Serialize;
+import univie.cube.PicaDesktop.out.logging.CustomLogger;
 
 public abstract class FeatureRanking {
 	
@@ -38,15 +41,15 @@ public abstract class FeatureRanking {
 	}
 	
 	public void runFeatureRanking() throws IOException, InterruptedException {
+		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Feature ranking started");
 		String[] command = {ExecutablePaths.getExecutablePaths().PICA_FEATURER.toString(), modelFile.toString(), "-o", outputResults.toString() + "/" + outputFileNameRaw}; 
-		CmdExecution.execute(command, outputResults, "feature_ranking");
+		CmdExecution.execute(command, WorkDir.getWorkDir().getTmpDir(), "feature_ranking");
 		
 		List<String> ranks = Files.readAllLines(Paths.get(outputResults.toString(), outputFileNameRaw));
 	
-	String outputFeatureRank = "group_id\tscore\tclass\tdescription";
-	outputFeatureRank += annotate(ranks).stream().collect(Collectors.joining("\n"));
-	Path outputPath = Files.createFile(Paths.get(outputResults.toString(), outputFileNameAnnotated));
-	Files.write(outputPath, outputFeatureRank.getBytes());
+		String outputFeatureRank = "group_id\tscore\tclass\tdescription\n";
+		outputFeatureRank += annotate(ranks).stream().collect(Collectors.joining("\n"));
+		Serialize.writeToFile(Paths.get(outputResults.toString(), outputFileNameAnnotated), outputFeatureRank.getBytes());
 	}
 	
 	
@@ -63,7 +66,6 @@ public abstract class FeatureRanking {
 	private List<String> newLine(List<String> line) {
 		List<String> newList = new ArrayList<String>(line);
 		List<String> annotations = Arrays.asList(line.get(0).split(","));
-		if(annotations.size() > this.getLimitFeaturesForGroup()) return newList;
 		List<String> annotationResults = annotations.stream().map(arg0 -> {
 			try {
 				return getAnnotation(arg0);
@@ -72,19 +74,14 @@ public abstract class FeatureRanking {
 			}
 		}).collect(Collectors.toList()); //never parallelize this (-> order will be destroyed, blocking from NCBI possible)
 		String annotationResultsDelimited;
-		System.out.println("annotation result: ");
-		System.out.println(annotationResults);
 		if(annotationResults.stream().anyMatch(str -> str.length() != 0)) annotationResultsDelimited = annotationResults.stream().collect(Collectors.joining(","));
 		else annotationResultsDelimited = "";
 		newList.add(annotationResultsDelimited);
-		System.out.println("newList: ");
-		System.out.println(newList);
 		return newList;
 	}
 	
 	protected abstract String getAnnotation(String representativeSeq) throws IOException, InterruptedException;
 	
 	protected abstract int getLimitLines();
-	protected abstract int getLimitFeaturesForGroup();
 	
 }

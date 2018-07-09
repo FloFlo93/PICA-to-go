@@ -12,13 +12,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
-import univie.cube.PicaDesktop.directories.WorkDir;
 
 public class LinearFiltering extends ClusterFiltering {
-
-	public LinearFiltering(WorkDir workDir, Path loggingDir) {
-		super(workDir, loggingDir);
-	}
 	
 	
 	@Override
