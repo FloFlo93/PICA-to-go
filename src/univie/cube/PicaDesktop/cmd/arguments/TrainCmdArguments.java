@@ -14,16 +14,11 @@ import univie.cube.PicaDesktop.pica.Annotation;
 import univie.cube.PicaDesktop.pica.Pica;
 
 public class TrainCmdArguments extends CmdArguments {
-	private Path inputBins;
 	private Path inputPhenotypes;
-	private Path outputResults;
 	private ClusteringProgram clusteringProgram;
-	private int threads;
-	private String feature;
 	private Annotation annotation;
 	private List<String> refGenomes;
 	private boolean filterCOGs;
-	private Path tmpDir = null;
 	private int limitBlast;
 	
 	public void setLimitBlast(String limitBlast) {
@@ -41,14 +36,7 @@ public class TrainCmdArguments extends CmdArguments {
 		return this.limitBlast;
 	}
 
-	public Path getInputBins() {
-		return inputBins;
-	}
-	public void setInputBins(String inputBinsStr) {
-		Path inputBins = Paths.get(inputBinsStr);
-		this.fileOrDirectoryExists(inputBins);
-		this.inputBins = inputBins;
-	}
+
 	public Path getInputPhenotypes() {
 		return inputPhenotypes;
 	}
@@ -69,15 +57,7 @@ public class TrainCmdArguments extends CmdArguments {
 		this.fileExists(inputPhenotypes);
 		this.inputPhenotypes = inputPhenotypes;
 	}
-	public Path getOutputResults() {
-		return outputResults;
-	}
-	
-	public void setOutputResults(String outputResultsStr) {
-		Path outputResults = Paths.get(outputResultsStr);
-		this.directoryExist(outputResults);
-		this.outputResults = outputResults;
-	}
+
 	public void setDebugMode(boolean debugMode) {
 		DebugMode.initializeDebugMode(debugMode);
 	}
@@ -91,18 +71,7 @@ public class TrainCmdArguments extends CmdArguments {
 			invalidArgumentError(parameter);
 		}
 	}
-	public int getThreads() {
-		return threads;
-	}
-	public void setThreads(String threadsStr) {
-		this.threads = parseThreads(threadsStr);
-	}
-	public String getFeature() {
-		return feature;
-	}
-	public void setFeature(String feature) {
-		this.feature = feature;
-	}
+
 	public Annotation getAnnotation() {
 		return annotation;
 	}
@@ -133,16 +102,6 @@ public class TrainCmdArguments extends CmdArguments {
 	public void setFilterCOGs(boolean filterCOGs) {
 		this.filterCOGs = filterCOGs;
 	}
-	public Path getTmpDir() {
-		return tmpDir;
-	}
-	public void setTmpDir(String tmpDirStr) {
-		if(tmpDirStr == null) this.tmpDir = null;
-		else {
-			Path tmpDir = Paths.get(tmpDirStr);
-			directoryExist(tmpDir);
-			this.tmpDir = tmpDir;
-		}
-	}
+
 	
 }

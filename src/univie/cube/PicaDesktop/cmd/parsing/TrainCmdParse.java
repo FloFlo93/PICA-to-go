@@ -75,7 +75,7 @@ public class TrainCmdParse extends CmdParse {
 		trainCmdArguments.setInputPhenotypes(cmd.getOptionValue("p"));
 		trainCmdArguments.setOutputResults(cmd.getOptionValue("o"));
 		trainCmdArguments.setDebugMode(cmd.hasOption("d"));
-		trainCmdArguments.setFeature(cmd.getOptionValue("f"));
+		trainCmdArguments.setFeatureName(cmd.getOptionValue("f"));
 		trainCmdArguments.setAnnotation(cmd.getOptionValue("a"), "a", Annotation.REFGENOMES);
 		if (cmd.hasOption("r")) trainCmdArguments.setRefGenomes(Arrays.asList(cmd.getOptionValues("r")));
 		else trainCmdArguments.setRefGenomes(null);

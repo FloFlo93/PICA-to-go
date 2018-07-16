@@ -62,7 +62,7 @@ public class PredictCmdParse extends CmdParse {
 		PredictCmdArguments predictCmdArguments = new PredictCmdArguments();
 		predictCmdArguments.setDbFileZip(cmd.getOptionValue("s"));
 		predictCmdArguments.setModelFileZip(cmd.getOptionValue("m"));
-		predictCmdArguments.setInputFiles(cmd.getOptionValue("i"));
+		predictCmdArguments.setInputBins(cmd.getOptionValue("i"));
 		predictCmdArguments.setFeatureName(cmd.getOptionValue("f"));
 		predictCmdArguments.setOutputResults(cmd.getOptionValue("o"));
 		predictCmdArguments.setDebugMode(cmd.hasOption("d"));

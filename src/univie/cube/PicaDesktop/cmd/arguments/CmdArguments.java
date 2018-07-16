@@ -2,12 +2,75 @@ package univie.cube.PicaDesktop.cmd.arguments;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import univie.cube.PicaDesktop.out.debug.DebugMode;
 import univie.cube.PicaDesktop.out.error.ErrorHandler;
 import univie.cube.PicaDesktop.out.logging.CustomLogger;
 
 
 public abstract class CmdArguments {
+	
+	private Path inputBins;
+	private String featureName;
+	private Path outputResults;
+	private int threads;
+	private Path tmpDir;
+	
+	public Path getInputBins() {
+		return this.inputBins;
+	}
+	
+	public void setInputBins(String inputBinsStr) {
+		Path inputBinsPath = Paths.get(inputBinsStr);
+		this.directoryExist(inputBinsPath);
+		this.inputBins = inputBinsPath;
+	}
+	
+	public String getFeatureName() {
+		return featureName;
+	}
+
+	public void setFeatureName(String featureName) {
+		this.featureName = featureName;
+	}
+
+	public Path getOutputResults() {
+		return outputResults;
+	}
+
+	public void setOutputResults(String outputResultsStr) {
+		Path outputResultsPath = Paths.get(outputResultsStr);
+		this.directoryExist(outputResultsPath);
+		this.outputResults = outputResultsPath;
+	}
+	
+	public void setDebugMode(boolean debugMode) {
+		DebugMode.initializeDebugMode(debugMode);
+	}
+
+	public int getThreads() {
+		return threads;
+	}
+
+	public void setThreads(String threads) {
+		this.threads = parseThreads(threads);
+	}
+
+	public Path getTmpDir() {
+		return tmpDir;
+	}
+
+	public void setTmpDir(String tmpDirStr) {
+		if(tmpDirStr == null) this.tmpDir = null;
+		else {
+			Path tmpDirPath = Paths.get(tmpDirStr);
+			this.fileExists(tmpDirPath);
+			this.tmpDir = tmpDirPath;
+		}
+	}
+	
+	
 	protected void directoryExist(Path directory) { 
 		if(! Files.exists(directory) || ! Files.isDirectory(directory)) notExistError(directory, "directory");
 	}

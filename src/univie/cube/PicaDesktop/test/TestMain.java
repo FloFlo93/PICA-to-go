@@ -2,30 +2,24 @@ package univie.cube.PicaDesktop.test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
-import univie.cube.PicaDesktop.archive.ZipCreator;
+import univie.cube.PicaDesktop.async.CallWhenAvailable;
 
 public class TestMain {
 	
-	public static void main(String[] args) throws FileNotFoundException, IOException {
-		Path output = Paths.get("/home/florian/Schreibtisch/test.zip");
-		List<Path> entriesToAdd = getAllDBs();
-		ZipCreator.createZip(output, entriesToAdd);
-	}
+	private static String x;
 	
-	private static List<Path> getAllDBs() throws IOException, RuntimeException {
-		List<Path> allDBs = new ArrayList<Path>();
-		
-		Files.walk(Paths.get("/tmp/TRAIN_picadesktop2819099444589725339/input-clustering-dir7379852137350983558"))
-		.filter(x -> x.toFile().isFile())
-		.forEach(path -> allDBs.add(path));
-		
-		return allDBs;
+
+	
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		CallWhenAvailable.call(() -> x !=null, () -> System.out.println(x));
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		x = "bla";
 	}
 }
 

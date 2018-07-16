@@ -52,7 +52,7 @@ public class TrainPipeline extends Pipeline {
 	    
 	    if(trainCmdArguments.isFilterCOGs()) {
 	    
-		    Pair<String, String> crossValJson = filterCluster(trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeature(), trainCmdArguments.getThreads());
+		    Pair<String, String> crossValJson = filterCluster(trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeatureName(), trainCmdArguments.getThreads());
 		    try {
 				Serialize.writeToFile(Paths.get(trainCmdArguments.getOutputResults().toString(), "pica-crossvalidation.json"), crossValJson.getRight());
 				Serialize.writeToFile(Paths.get(trainCmdArguments.getOutputResults().toString(), "pica-crossvalidation-no-filtering.json"), crossValJson.getLeft());
@@ -78,7 +78,7 @@ public class TrainPipeline extends Pipeline {
 	    	PicaCrossvalidate picaCrossVal;
 	    	Map<String, String> crossValResult = new HashMap<String, String>();
 			try {
-				picaCrossVal = new PicaCrossvalidate(inputPica, tmpPicaCrossVal, trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeature());
+				picaCrossVal = new PicaCrossvalidate(inputPica, tmpPicaCrossVal, trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeatureName());
 				crossValResult = picaCrossVal.call();
 			} catch (IOException e1) {
 				(new ErrorHandler(e1, ErrorHandler.ErrorWeight.FATAL, "Pica crossvalidation failed")).handle();
@@ -107,7 +107,7 @@ public class TrainPipeline extends Pipeline {
 	    
 	    //---------------------------PICA---------------------------------------------------------------//
 	    
-		picaTrain(inputPica, trainCmdArguments.getOutputResults(), trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeature());
+		picaTrain(inputPica, trainCmdArguments.getOutputResults(), trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeatureName());
 		
 		
 		
@@ -116,10 +116,10 @@ public class TrainPipeline extends Pipeline {
 		try {
 			FeatureRanking featureRanking;
 			if(trainCmdArguments.getAnnotation() == Annotation.BLAST)
-				featureRanking = new FeatureRankingBlast(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeature(), super.clusteringInstance, trainCmdArguments.getLimitBlast());
+				featureRanking = new FeatureRankingBlast(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), super.clusteringInstance, trainCmdArguments.getLimitBlast());
 			else  {
 				Map<String, String> fastaHeaders = super.clusteringInstance.getFastaHeaders();
-				featureRanking = new FeatureRankingRefGenome(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeature(), fastaHeaders, trainCmdArguments.getRefGenomes(), orthogroups);
+				featureRanking = new FeatureRankingRefGenome(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), fastaHeaders, trainCmdArguments.getRefGenomes(), orthogroups);
 			}
 			featureRanking.runFeatureRanking();
 		} catch (IOException | InterruptedException e) {

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import univie.cube.PicaDesktop.out.debug.DebugMode;
 import univie.cube.PicaDesktop.out.logging.CustomLogger;
 
 public class CmdExecution {
@@ -112,7 +113,7 @@ public class CmdExecution {
 	}
 	
 	public static void printIfErrorOccured(Status status) {
-		if (status.errorOccured) {
+		if (status.errorOccured && DebugMode.getInstance().isDebugMode()) {
 			String errorMessage = "ERROR occured in subprocess \n ORIGINAL COMMAND: " + status.command;
 			CustomLogger.getInstance().log(CustomLogger.LoggingWeight.ERROR, errorMessage);
 		}

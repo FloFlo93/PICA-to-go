@@ -1,7 +1,6 @@
 package univie.cube.PicaDesktop.inputpreparation;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 
@@ -19,6 +18,7 @@ public class InputPreparationPredict extends InputPreparation {
 	private Path modelFile;
 
 	public InputPreparationPredict(PredictCmdArguments predictCmdArguments) {
+		super(predictCmdArguments);
 		this.predictCmdArguments = predictCmdArguments;
 		prepareInput();
 	}
@@ -31,22 +31,9 @@ public class InputPreparationPredict extends InputPreparation {
 		return this.modelFile;
 	}
 	
-	@Override
-	protected void prepareInput() {
-		super.createWorkDir(predictCmdArguments.getTmpDir(), predictCmdArguments.getInputFiles());
-		Path workDirPath = WorkDir.getWorkDir().getTmpDir();
-		Path inputClusteringDir = null;
-		try {
-			inputClusteringDir = Files.createTempDirectory(workDirPath, "input-clustering-dir");
-			super.inputFastaProcessing(predictCmdArguments.getThreads(), predictCmdArguments.getInputFiles(), inputClusteringDir);
-		} catch (IOException e) {
-			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "InputPreparationTrain failed.")).handle();
-		}
-		this.inputClusteringDir = inputClusteringDir;
-		processModelAndDB();
-	}
 	
-	private void processModelAndDB() {
+	@Override
+	protected void processModelAndDBHook() {
 		unzipModelAndDB();
 		findModelFile();
 	}
@@ -68,6 +55,11 @@ public class InputPreparationPredict extends InputPreparation {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "The pica-rules file seems to be invalid")).handle();
 		}
 		this.modelFile = modelFile;
+	}
+
+	@Override
+	protected void featureExistsHook() {
+		// not yet available TODO: useful to implement? how?
 	}
 
 }

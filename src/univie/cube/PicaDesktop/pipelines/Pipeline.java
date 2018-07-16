@@ -105,10 +105,6 @@ public abstract class Pipeline {
 		}
 	}
 	
-	protected void clusterUpdate() {
-		
-	}
-	
 	protected int parseThreads(String threadsStr) {
 		int threads;
 		if(threadsStr == null || ! threadsStr.matches("\\d+")) {

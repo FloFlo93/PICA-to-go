@@ -59,7 +59,7 @@ public class PredictPipeline extends Pipeline {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "inputFile for PICA could not be generated")).handle();
 		}
 		
-		//-----PICA-TEST--------------------------------------//
+		//-----PICA-PREDICT--------------------------------------//
 		
 		try {
 			PicaPredict picaTest = new PicaPredict(picaInput, predictCmdArguments.getOutputResults(), predictCmdArguments.getFeatureName(), modelFile);

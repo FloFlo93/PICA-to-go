@@ -4,45 +4,50 @@ package univie.cube.PicaDesktop.inputpreparation;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 import univie.cube.PicaDesktop.cmd.arguments.TrainCmdArguments;
-import univie.cube.PicaDesktop.directories.WorkDir;
 import univie.cube.PicaDesktop.out.error.ErrorHandler;
-import univie.cube.PicaDesktop.out.logging.CustomLogger;
 
 
 public class InputPreparationTrain extends InputPreparation {
 	
 	private TrainCmdArguments trainCmdArguments;
-	private Path inputClusteringDir = null;
 	
 	
 	public InputPreparationTrain(TrainCmdArguments trainCmdArguments) {
-		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Starting to validate the input");
+		super(trainCmdArguments);
 		this.trainCmdArguments = trainCmdArguments;
 		prepareInput();
 	}
 	
 	public Path getInputClusteringDir() {
-		return this.inputClusteringDir;
+		return super.inputClusteringDir;
+	}
+
+
+	@Override
+	protected void featureExistsHook() {
+		Path inputPhenotypes = this.trainCmdArguments.getInputPhenotypes();
+		String feature = this.trainCmdArguments.getFeatureName();
+		List<String> inputPhenotypesReadFile = null;
+		try {
+			inputPhenotypesReadFile = Files.readAllLines(inputPhenotypes);
+		} catch (IOException e) {
+			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "Feature specified does not exist in feature file")).handle();
+		}
+		String[] allFeatures = inputPhenotypesReadFile.get(0).split("\t");
+		long occurances = Arrays.stream(allFeatures).filter(obj -> obj.equals(feature)).count();
+		if(occurances != 1) {
+			(new ErrorHandler(new RuntimeException("feature not in feature file"), ErrorHandler.ErrorWeight.FATAL, "The feature specified is not present in the phenotype file")).handle();
+		}
 	}
 
 	@Override
-	protected void prepareInput() {
-		super.createWorkDir(trainCmdArguments.getTmpDir(), trainCmdArguments.getInputBins());
-		super.featureExists(trainCmdArguments.getInputPhenotypes(), trainCmdArguments.getFeature());
-		Path workDirPath = WorkDir.getWorkDir().getTmpDir();
-		Path inputClusteringDir = null;
-		try {
-			inputClusteringDir = Files.createTempDirectory(workDirPath, "input-clustering-dir");
-			super.inputFastaProcessing(trainCmdArguments.getThreads(), trainCmdArguments.getInputBins(), inputClusteringDir);
-		} catch (IOException e) {
-			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "InputPreparationTrain failed.")).handle();
-		}
-		this.inputClusteringDir = inputClusteringDir;
+	protected void processModelAndDBHook() {
+		// not available for train mode
 	}
-	
-	
 	
 
 }
