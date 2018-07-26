@@ -22,6 +22,7 @@ public class InputPreparationTrain extends InputPreparation {
 		prepareInput();
 	}
 	
+	@Override
 	public Path getInputClusteringDir() {
 		return super.inputClusteringDir;
 	}

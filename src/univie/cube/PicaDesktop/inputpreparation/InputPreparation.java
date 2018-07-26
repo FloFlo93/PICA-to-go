@@ -107,4 +107,6 @@ public abstract class InputPreparation {
 		processModelAndDBHook();
 	}
 	
+	protected abstract Path getInputClusteringDir(); 
+	
 }

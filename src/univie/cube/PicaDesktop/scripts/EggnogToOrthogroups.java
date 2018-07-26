@@ -61,11 +61,12 @@ public class EggnogToOrthogroups {
 		
 		inputDir = Paths.get(cmd.getOptionValue("i"));
 		outputFile = Paths.get(cmd.getOptionValue("o"));
-		outputFilePicaInput = Paths.get(cmd.getOptionValue("p"));
+		outputFilePicaInput = (cmd.getOptionValue("p") != null) ? Paths.get(cmd.getOptionValue("p")) : null;
 		
 		
 		//TODO: check if file exists 
-		if ( ! inputDir.toFile().exists() || ! inputDir.toFile().isDirectory() || ! outputFile.toFile().getParentFile().exists() || outputFile.toFile().isDirectory() || ! outputFilePicaInput.toFile().getParentFile().exists() || outputFilePicaInput.toFile().isDirectory()) throw new FileNotFoundException();
+		if ( ! inputDir.toFile().exists() || ! inputDir.toFile().isDirectory() || ! outputFile.toFile().getParentFile().exists() || outputFile.toFile().isDirectory()) throw new FileNotFoundException();
+		if(outputFilePicaInput != null && (! outputFilePicaInput.toFile().getParentFile().exists() || outputFilePicaInput.toFile().isDirectory())) throw new FileNotFoundException();
 	}
 	
 	public static void main(String[] args) {

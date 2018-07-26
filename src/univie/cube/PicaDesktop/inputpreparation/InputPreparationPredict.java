@@ -23,6 +23,7 @@ public class InputPreparationPredict extends InputPreparation {
 		prepareInput();
 	}
 	
+	@Override
 	public Path getInputClusteringDir() {
 		return this.inputClusteringDir;
 	}

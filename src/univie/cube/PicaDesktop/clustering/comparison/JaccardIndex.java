@@ -1,17 +1,20 @@
 package univie.cube.PicaDesktop.clustering.comparison;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
 
-public class Jaccard {
+public class JaccardIndex {
 	
 	Map<String, COG> orthogroups1;
 	Map<String, COG> orthogroups2;
 	
-	public Jaccard(Map<String, COG> orthogroups1, Map<String, COG> orthogroups2) {
+	public JaccardIndex(Map<String, COG> orthogroups1, Map<String, COG> orthogroups2) {
 		this.orthogroups1 = orthogroups1;
 		this.orthogroups2 = orthogroups2;
 	}
@@ -20,9 +23,14 @@ public class Jaccard {
 	 * 
 	 * @return key = name of the two orthogroups seperated by whitespace, left one corresponds to orthogroup1, right one to orthogroup2; value = score
 	 */
-	public Map<String, Double> forEachCalcJaccard() {
-		Map<String, Double> jaccardIndex = new HashMap<String, Double>(); 
-		for(Map.Entry<String, COG> entry1 : orthogroups1.entrySet()) {
+	public List<Double> forEachCalcJaccard() {
+		//Map<String, Double> jaccardIndex = new HashMap<String, Double>(); 
+		
+		List<Double> allScores = orthogroups1.entrySet().parallelStream()
+									.flatMap(this::compareEntry1ToAllEntry2)
+									.collect(Collectors.toList());
+		
+		/* for(Map.Entry<String, COG> entry1 : orthogroups1.entrySet()) {
 			for(Map.Entry<String, COG> entry2 : orthogroups2.entrySet()) {
 				double score = calcJaccardIndex(entry1.getValue().getGenes(), entry2.getValue().getGenes());
 				if(score != 0) {
@@ -30,8 +38,15 @@ public class Jaccard {
 					jaccardIndex.put(keyResult, score);
 				}
 			}
-		}
-		return jaccardIndex;
+		} */
+		return allScores;
+	}
+	
+	private Stream<Double> compareEntry1ToAllEntry2(Map.Entry<String, COG> entry1) {
+		return orthogroups2.entrySet()
+					.stream()
+					.map(entry2 -> calcJaccardIndex(entry1.getValue().getGenes(), entry2.getValue().getGenes()))
+					.filter(num -> num != 0);
 	}
 	
 	

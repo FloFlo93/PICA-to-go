@@ -29,7 +29,7 @@ import univie.cube.PicaDesktop.pica.PicaCrossvalidate;
 
 
 
-public class TrainPipeline extends Pipeline {
+public class TrainPipeline extends BasePicaPipeline {
 
 	
 	public void startPipeline(String[] args) {

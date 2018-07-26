@@ -17,7 +17,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
-import univie.cube.PicaDesktop.clustering.methods.MMseqsClustering;
 import univie.cube.PicaDesktop.directories.WorkDir;
 import univie.cube.PicaDesktop.miscellaneous.Serialize;
 import univie.cube.PicaDesktop.pica.Pica;
@@ -106,9 +105,7 @@ public abstract class ClusterFiltering {
 		
 		
 		for(Integer cutoff : cutoffs) {
-			allCOGsToIndex(orthogroups);
-			removeCOGs(orthogroups, cutoff);
-			CrossVal crossVal = picaCrossVal(orthogroupsPerBin, pathToInputPhenotypes, feature, es);
+			CrossVal crossVal = filterAnCrossVal(orthogroups, orthogroupsPerBin, pathToInputPhenotypes, feature, es, cutoff);
 			picaThreads.put(cutoff, crossVal);
 		}
 		
@@ -130,12 +127,27 @@ public abstract class ClusterFiltering {
 				crossValWithoutCutoff.crossValJson.put("cluster-filtering-cutoff",entry.getKey().toString());
 			}
 		}
-		es.shutdown();
 		
 		//all COGs are filtered for the best cutoff(the filtering always has a global effect as orthogroups is a reference) 
 		allCOGsToIndex(orthogroups);
 		removeCOGs(orthogroups, bestCrossValCutoff.cutoff);
+		
+		//recalculation of best cutoff (as it may be biased)
+		
+		CrossVal crossValTmp = filterAnCrossVal(orthogroups, orthogroupsPerBin, pathToInputPhenotypes, feature, es, bestCrossValCutoff.cutoff);
+		bestCrossValCutoff.crossValJson = crossValTmp.crossValJsonFuture.get();
+		bestCrossValCutoff.crossval = Double.valueOf(bestCrossValCutoff.crossValJson.get("mean_balanced_accuracy"));
+		
+		es.shutdown();
+		
 		return Pair.of(crossValWithoutCutoff, bestCrossValCutoff);
+	}
+	
+	private CrossVal filterAnCrossVal(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, String feature, ExecutorService es, Integer cutoff) throws IOException, InterruptedException {
+		allCOGsToIndex(orthogroups);
+		removeCOGs(orthogroups, cutoff);
+		CrossVal crossVal = picaCrossVal(orthogroupsPerBin, pathToInputPhenotypes, feature, es);
+		return crossVal;
 	}
 	
 	public static class CrossValPerCutOff {

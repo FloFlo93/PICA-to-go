@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import univie.cube.PicaDesktop.clustering.datatypes.BinCOGs;
 import univie.cube.PicaDesktop.clustering.datatypes.COG;
+import univie.cube.PicaDesktop.fastaformat.FastaHeaders;
 
 public class EggNOGFileParser {
 	
@@ -76,7 +77,7 @@ public class EggNOGFileParser {
 		
 		for (String line : contentFile) {
 			String[] column = line.split("\t");
-			String geneName = binName + "_" + column[0];
+			String geneName = binName + FastaHeaders.getBinGeneSeperator() + column[0];
 			String eggnogID = column[1];
 			COG cog = orthogroups.get(eggnogID);
 			if(cog == null) {

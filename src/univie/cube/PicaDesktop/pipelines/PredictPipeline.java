@@ -20,7 +20,7 @@ import univie.cube.PicaDesktop.miscellaneous.Serialize;
 import univie.cube.PicaDesktop.out.error.ErrorHandler;
 import univie.cube.PicaDesktop.pica.PicaPredict;
 
-public class PredictPipeline extends Pipeline {
+public class PredictPipeline extends BasePicaPipeline {
 	
 	
 	@Override

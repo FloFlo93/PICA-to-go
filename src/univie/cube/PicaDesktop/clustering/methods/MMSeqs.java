@@ -113,7 +113,7 @@ public abstract class MMSeqs {
 	}
 	
 	private String getBinNameFromString(String str) {
-		String[] strSplit = str.split("\\^_");
+		String[] strSplit = str.split("\\" + FastaHeaders.getBinGeneSeperator());
 		return strSplit[0];
 	}
 }

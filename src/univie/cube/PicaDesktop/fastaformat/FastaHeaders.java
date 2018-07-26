@@ -12,6 +12,8 @@ import univie.cube.PicaDesktop.miscellaneous.CmdExecution;
 
 public class FastaHeaders {
 	
+	private static String binGeneSeperator = "^_";
+	
 	public static Map<String, String> getFastaHeadersFromConcatProteomes(Path path) {
 		//get chunks of fasta header + sequence
 		List<String> chunks;
@@ -35,7 +37,7 @@ public class FastaHeaders {
 		String fileName = inputFile.getFileName().toString();
 		String fileNameWithoutSuffix;
 		fileNameWithoutSuffix = getFileNameWithoutSuffix(fileName);
-		String command = "awk '/^>/ {$0=\"" + ">" + fileNameWithoutSuffix + "^_" + "\"substr($0,2)}1' " +  fileName + " &> " + fileNameWithoutSuffix + ".tmp && mv " + fileNameWithoutSuffix + ".tmp " + fileName;
+		String command = "awk '/^>/ {$0=\"" + ">" + fileNameWithoutSuffix + binGeneSeperator + "\"substr($0,2)}1' " +  fileName + " &> " + fileNameWithoutSuffix + ".tmp && mv " + fileNameWithoutSuffix + ".tmp " + fileName;
 		CmdExecution.Status status = CmdExecution.executePipedSubprocess(command, inputFile.getParent().toFile());
 		CmdExecution.printIfErrorOccured(status);
 		if(status.errorOccured) throw new RuntimeException();
@@ -51,7 +53,9 @@ public class FastaHeaders {
 		return fileNameWithoutSuffix;
 	}
 	
-	
+	public static String getBinGeneSeperator() {
+		return binGeneSeperator;
+	}
 	
 	
 	

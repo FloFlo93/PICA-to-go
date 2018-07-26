@@ -6,8 +6,11 @@ import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 
+import univie.cube.PicaDesktop.clustering.comparison.pipelines.JaccardPipeline;
+import univie.cube.PicaDesktop.clustering.comparison.pipelines.RandPipeline;
 import univie.cube.PicaDesktop.global.ExecutablePaths;
 import univie.cube.PicaDesktop.out.error.ErrorHandler;
+import univie.cube.PicaDesktop.pipelines.BasePicaPipeline;
 import univie.cube.PicaDesktop.pipelines.Pipeline;
 import univie.cube.PicaDesktop.pipelines.PredictPipeline;
 import univie.cube.PicaDesktop.pipelines.TrainPipeline;
@@ -22,6 +25,9 @@ public class Main {
 		
 		String mode = (args.length < 2) ? "" : args[0];
 		Pipeline pipeline = null;
+		
+		String knownModes = "predict, train, randindex, jaccardindex"; 
+		
 		if(mode.equals("predict")) {
 			pipeline = new PredictPipeline();
 		}
@@ -32,12 +38,18 @@ public class Main {
 			System.out.println(help_info);
 			System.exit(0);
 		}
+		else if(mode.equals("randindex")) {
+			pipeline = new RandPipeline();
+		}
+		else if(mode.equals("jaccardindex")) {
+			pipeline = new JaccardPipeline();
+		}
 		else {
 			if (! mode.equals("")) {
-				(new ErrorHandler(new InvalidParameterException(), ErrorHandler.ErrorWeight.FATAL, mode + " is an unknown mode, known modes: {predict,train}")).handle();
+				(new ErrorHandler(new InvalidParameterException(), ErrorHandler.ErrorWeight.FATAL, mode + " is an unknown mode, known modes: {" + knownModes + "}")).handle();
 			}
 			else {
-				(new ErrorHandler(new InvalidParameterException(), ErrorHandler.ErrorWeight.FATAL, "No mode specified, known modes: {predict,train}")).handle();
+				(new ErrorHandler(new InvalidParameterException(), ErrorHandler.ErrorWeight.FATAL, "No mode specified, known modes: {" + knownModes + "}")).handle();
 			}
 		}
 		//----check if script was launched from launch script-------------------------------//

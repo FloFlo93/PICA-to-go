@@ -65,7 +65,7 @@ public abstract class CmdArguments {
 		if(tmpDirStr == null) this.tmpDir = null;
 		else {
 			Path tmpDirPath = Paths.get(tmpDirStr);
-			this.fileExists(tmpDirPath);
+			this.directoryExist(tmpDirPath);
 			this.tmpDir = tmpDirPath;
 		}
 	}
