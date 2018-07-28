@@ -25,7 +25,7 @@ public abstract class ClusterComparisonInterface implements Pipeline {
 	
 	private Map<String, COG> orthogroups1 = null;
 	private Map<String, COG> orthogroups2 = null;
-	private Integer threads = null;
+	protected int threads = 1;
 	
 	@Override
 	public abstract void startPipeline(String[] args);
@@ -56,7 +56,7 @@ public abstract class ClusterComparisonInterface implements Pipeline {
 		
 		file1 = Paths.get(cmd.getOptionValue("a"));
 		file2 = Paths.get(cmd.getOptionValue("b"));
-		threads= (cmd.getOptionValue("t")==null) ? null : Integer.parseInt(cmd.getOptionValue("t"));
+		threads= (cmd.getOptionValue("t")==null) ? 1 : Integer.parseInt(cmd.getOptionValue("t"));
 		
 		//TODO: check if file exists 
 		if ( ! file1.toFile().exists() || ! file2.toFile().exists()) throw new FileNotFoundException();
