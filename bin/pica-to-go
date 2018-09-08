@@ -66,6 +66,7 @@ function dependency_python_lib {
 		python -c "import $i" &> /dev/null
 		if [[ $? -ne 0 ]]; then
 			echo "#pica-to-go-launcher: Fatal Error: Python libary $i is not installed"
+			exit 1
 		fi
 	done
 		
