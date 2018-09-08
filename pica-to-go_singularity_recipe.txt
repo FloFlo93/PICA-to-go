@@ -19,7 +19,7 @@ yum -y install unzip
 
 # pica-to-go
 %appinstall pica-to-go
-COMMIT=bf01bb5
+COMMIT=b227cfd
 curl -LO https://github.com/FloFlo93/PICA-to-go/archive/${COMMIT}.zip
 unzip ${COMMIT}.zip
 rm -rf ${COMMIT}.zip
