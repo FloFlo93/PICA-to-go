@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CONFIG_FILE="$DIR/config"
+source "$CONFIG_FILE"
+
+
+#starts execution of pica-to-go and appends all cmd options to it
+function exec_app {
+	java $JAVA_HEAP_SPACE $ADDITIONAL_JVM_PARAMETERS -jar $DIR/$PICA_TO_GO_JAR $@ launcher
+}
+
+# CHECK FOR "GENERAL" DEPENDENCIES (e.g. coreutils commands, make)
+function dependency_env {
+	for i in "${ENV_DEPENDENCIES[@]}"
+	do
+		local COMMAND_FOUND=$(dependency_general "$i")
+		if [ $COMMAND_FOUND == "0" ]; then
+			echo "#pica-to-go-launcher: Fatal Error: Command $i is not available on your system. Please install this program first. We are sorry!"
+			exit 1 
+		fi
+	done
+}
+
+#takes one argument (name of dependency), returns if dependency is installed (0=false, 1=true)
+function dependency_general {
+	if command -v $1 >/dev/null 2>&1 ; then
+	    echo 1 #command found
+	else
+	    echo 0 #command not found
+	fi
+}
+
+function replace_var {
+	sed -i /$1/d $CONFIG_FILE
+	echo "$1=\"$2\"" >> "$CONFIG_FILE"
+}
+
+function dependency_java {
+	# CHECK IF JAVA 8 or higher is in $PATH
+	# from: https://odoepner.wordpress.com/2014/07/27/get-java-version-string-via-shell-commands/
+	local VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | cut -d'.' -f2)
+	local VERSION_ABOVE8=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | cut -d'.' -f1)
+	if [[ $VERSION -lt "8" ]] &&  [[ VERSION_ABOVE8 -lt "9" ]]; then
+	  echo "#pica-to-go-launcher: Fatal Error: Java 1.8 or higher is required. Please install the newest Java version."
+	  exit 1
+	fi
+}
+
+function dependency_python {
+	local VERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 1)
+	local SUBVERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 2)
+	if [ $VERSION != "2" ]; then
+		echo "#pica-to-go-launcher: Fatal Error: Python2 is not installed or callable via /usr/bin/python. Please install Python 2.7 or a newer Python2 version"
+		exit 1
+	fi
+	if (($SUBVERSION < 7)); then
+		echo "#pica-to-go-launcher: Fatal Error: Your Python2 version is outdated. Please install Python 2.7 or a newer Python2 version"
+		exit 1
+	fi
+}
+
+#check if system supports AVX2 or SSE4.1 (needed to run mmseqs)
+function mmseqs_version {
+	local AVX2_SUPPORT=$(grep avx2 /proc/cpuinfo | wc --lines)
+	local SSE41_SUPPORT=$(grep sse4.1 /proc/cpuinfo | wc --lines)
+	if (( $AVX2_SUPPORT > 0)); then
+		MMSEQS_VERSION="AVX2"
+	elif (( $SSE41_SUPPORT > 0)); then
+		local MMSEQS_VERSION="SSE41"	
+	else
+		echo "#pica-to-go-launcher: Fatal Error: Your computer does not support AVX2 or SSE4.1. Pica-to-go cannot be launched. We are sorry!"
+		exit 1
+	fi
+	replace_var "MMSEQS_VERSION" $MMSEQS_VERSION
+}
+
+dependency_env
+dependency_java
+dependency_python
+mmseqs_version
+exec_app "$@"
+
+
+
