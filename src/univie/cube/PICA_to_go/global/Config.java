@@ -73,7 +73,7 @@ public class Config {
 	private Path PICA_TRAIN;
 	private Path PICA_FEATURER;
 	
-	private String MMSEQS_VERSION;
+	private String MMSEQS_VERSION = System.getenv("MMSEQS_VERSION");
 	private Path MMSEQS_AVX2;
 	private Path MMSEQS_SSE41;
 	private Path MMSEQS_EX;

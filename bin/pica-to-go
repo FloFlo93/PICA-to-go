@@ -72,7 +72,7 @@ function mmseqs_version {
 		echo "#pica-to-go-launcher: Fatal Error: Your computer does not support AVX2 or SSE4.1. Pica-to-go cannot be launched. We are sorry!"
 		exit 1
 	fi
-	replace_var "MMSEQS_VERSION" $MMSEQS_VERSION
+	export MMSEQS_VERSION
 }
 
 dependency_env
