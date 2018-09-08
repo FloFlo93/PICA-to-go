@@ -61,9 +61,10 @@ function dependency_python {
 }
 
 function dependency_python_lib {
-	for i in "$PYTHON_DEPENDENCIES"
+	for i in "${PYTHON_DEPENDENCIES[@]}"
 	do
-		if python -c "import $i" &> /dev/null; then
+		python -c "import $i" &> /dev/null
+		if [[ $? -ne 0 ]]; then
 			echo "#pica-to-go-launcher: Fatal Error: Python libary $i is not installed"
 		fi
 	done
@@ -85,9 +86,11 @@ function mmseqs_version {
 	export MMSEQS_VERSION
 }
 
+
 dependency_env
 dependency_java
 dependency_python
+dependency_python_lib
 mmseqs_version
 exec_app "$@"
 
