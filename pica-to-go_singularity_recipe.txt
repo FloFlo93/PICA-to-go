@@ -1,0 +1,30 @@
+Bootstrap: yum
+OSVersion: 7
+MirrorURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/os/$basearch/
+Include: yum
+
+# curl (to install Java 10)
+%appinstall curl
+yum install curl
+ 
+# java-jre10 
+%appinstall java-jre10
+curl -L -b "oraclelicense=a" -O http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_linux-x64_bin.rpm
+yum -y localinstall jre-10.0.2_linux-x64_bin.rpm
+
+# unzip
+%appinstall unzip
+yum -y install unzip
+
+
+# pica-to-go
+%appinstall pica-to-go
+COMMIT=bf01bb5
+curl -LO https://github.com/FloFlo93/PICA-to-go/archive/${COMMIT}.zip
+unzip ${COMMIT}.zip
+rm -rf ${COMMIT}.zip
+mv PICA* /opt/
+
+# runscript
+%runscript 
+/opt/PICA*/bin/pica-to-go $@

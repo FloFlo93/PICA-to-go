@@ -60,6 +60,16 @@ function dependency_python {
 	fi
 }
 
+function dependency_python_lib {
+	for i in "$PYTHON_DEPENDENCIES"
+	do
+		if python -c "import $i" &> /dev/null; then
+			echo "#pica-to-go-launcher: Fatal Error: Python libary $i is not installed"
+		fi
+	done
+		
+}
+
 #check if system supports AVX2 or SSE4.1 (needed to run mmseqs)
 function mmseqs_version {
 	local AVX2_SUPPORT=$(grep avx2 /proc/cpuinfo | wc --lines)
