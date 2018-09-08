@@ -63,7 +63,7 @@ MMSEQS_SSE41="libs/mmseqs2/sse41/bin/mmseqs"
 
 PICA_TO_GO_JAR="pica-to-go.jar"
 
-ENV_DEPENDENCIES=("cat" "echo" "cut" "awk" "head" "grep" "make" "gcc" "sed") #"General" dependencies (e.g. coreutils, make)
+ENV_DEPENDENCIES=("cat" "echo" "cut" "awk" "head" "grep" "sed") #"General" dependencies (e.g. coreutils, make)
 
 
 
