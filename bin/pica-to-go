@@ -31,10 +31,6 @@ function dependency_general {
 	fi
 }
 
-function replace_var {
-	sed -i /$1/d $CONFIG_FILE
-	echo "$1=\"$2\"" >> "$CONFIG_FILE"
-}
 
 function dependency_java {
 	# CHECK IF JAVA 8 or higher is in $PATH

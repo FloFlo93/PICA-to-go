@@ -6,8 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import univie.cube.PICA_to_go.archive.FastaGzHandler;
 import univie.cube.PICA_to_go.cmd.arguments.CmdArguments;
 import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.fastaformat.FastaValidate;
@@ -27,7 +27,8 @@ public abstract class InputPreparation {
 	}
 	
 	protected void inputFastaProcessing(int threads, Path inputBins, Path inputClusteringDir, String translationTable) throws IOException {
-		List<Path> allFiles = Files.walk(inputBins).filter(Files::isRegularFile).collect(Collectors.toList());
+		FastaGzHandler fastaGzHandler = new FastaGzHandler(inputBins);
+		List<Path> allFiles = fastaGzHandler.getFiles();
 		List<Path> genomes = new ArrayList<Path>();
 		List<Path> proteomes = new ArrayList<Path>();
 		List<Path> invalidProteomes = new ArrayList<Path>();
@@ -55,6 +56,7 @@ public abstract class InputPreparation {
 			List<String> correctedLines = FastaValidate.removeInvalidChars(Files.readAllLines(path));
 			Files.write(Paths.get(inputClusteringDir.toString(), path.getFileName().toString()), correctedLines);
 		}
+		fastaGzHandler.close();
 	}
 	
 	private void findGenes(int threads, List<Path> inputBinsNucleotide, Path inputClusteringDir, String translationTable) {

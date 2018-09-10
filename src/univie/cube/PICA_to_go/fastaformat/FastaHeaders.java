@@ -43,14 +43,13 @@ public class FastaHeaders {
 		if(status.errorOccured) throw new RuntimeException();
 	}
 	
+	/**
+	 * 
+	 * @param fileName
+	 * @return returns the filename without the suffix (if suffix is faa, fna, fasta, txt or fa and/or gz) e.g. ERR23322.1.faa.gz will be ERR23322.1, the same is true for ERR23322.1.faa, ERR23322.1.gz or ERR23322.1
+	 */
 	public static String getFileNameWithoutSuffix(String fileName) {
-		String fileNameWithoutSuffix;
-		if(fileName.contains(".") 
-				&& fileName.substring(fileName.lastIndexOf("."), fileName.length()).matches(".fasta|.fna|.fa|.faa")) {
-			fileNameWithoutSuffix = fileName.substring(0, fileName.lastIndexOf("."));
-		}
-		else fileNameWithoutSuffix = fileName;
-		return fileNameWithoutSuffix;
+		return fileName.replaceAll("(|\\.(faa|fna|fasta|txt|fa))(\\.gz|)(?!.)", "");
 	}
 	
 	public static String getBinGeneSeperator() {

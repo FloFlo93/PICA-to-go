@@ -19,11 +19,15 @@ yum -y install unzip
 
 # pica-to-go
 %appinstall pica-to-go
-COMMIT=ec829e8
+COMMIT=b35de26
 curl -LO https://github.com/FloFlo93/PICA-to-go/archive/${COMMIT}.zip
 unzip ${COMMIT}.zip
 rm -rf ${COMMIT}.zip
 mv PICA* /opt/
+
+# numpy
+%appinstall numpy
+yum -y install numpy
 
 # runscript
 %runscript 

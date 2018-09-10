@@ -9,8 +9,14 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-//based on https://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/
 
+/**
+ * 
+ * @author florian piewald
+ * based on https://www.mkyong.com/java/how-to-decompress-files-from-a-zip-file/ 
+ *
+ * decompresses a zip archive (not to be confused with gzipped files)
+ */
 public class Unzip {
 
 	public static void unzip(Path source, Path destination) throws IOException {
