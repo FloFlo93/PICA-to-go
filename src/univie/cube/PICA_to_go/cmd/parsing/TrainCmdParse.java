@@ -48,7 +48,7 @@ public class TrainCmdParse extends CmdParse {
 		options.addOption(clusteringOpt);
 		Option threadsOpt = new Option("t", true, "number of threads; default: maximal available threads on system");
 		options.addOption(threadsOpt);
-		Option featureOpt = new Option("f", true, "feature for pica model to consider; required"); //TODO: multiple options (second step), check if exists before starting pipeline
+		Option featureOpt = new Option("f", true, "class for pica model to consider; required"); //TODO: multiple options (second step), check if exists before starting pipeline
 		featureOpt.setRequired(true);
 		options.addOption(featureOpt);
 		Option annotationOpt = new Option("a", true, "annotation of the feature rank groups {refgenome, blast}, default: refgenome; warning: blast is done by a remote service to NCBI, may be slow");

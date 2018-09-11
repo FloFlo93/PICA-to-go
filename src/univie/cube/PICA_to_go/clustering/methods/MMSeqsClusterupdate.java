@@ -11,8 +11,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.global.Config;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
@@ -45,12 +45,12 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	/**
 	 * 
 	 * @param threads
-	 * @return Pair of orthogroups (left; Map<String, COG>) and orthogroupsPerBin (right; Map<String, BinCOGs>)
+	 * @return Pair of geneClusters (left; Map<String, GeneCluster>) and geneClustersPerBin (right; Map<String, GeneClust4Bin>)
 	 * @throws InterruptedException
 	 * @throws IOException
 	 * @throws RuntimeException
 	 */
-	public Pair<Map<String, COG>, Map<String, BinCOGs>> clusterUpdate(int threads) throws InterruptedException, IOException, RuntimeException {		
+	public Pair<Map<String, GeneCluster>, Map<String, GeneClust4Bin>> clusterUpdate(int threads) throws InterruptedException, IOException, RuntimeException {		
 		Files.walk(predictBinsDir).filter(path -> Files.isRegularFile(path)).forEach(file -> {
 			String fileName = file.getFileName().toString();
 			binNames.add(fileName.substring(0, fileName.lastIndexOf(".")));
@@ -67,8 +67,8 @@ public class MMSeqsClusterupdate extends MMSeqs {
 		Path tsvFile = clusterupdateCommand(concatSeqDB, threads);
 		if(tsvFile == null) throw new RuntimeException("mmseqs clusterupdate failed");
 		parseClustOutput(tsvFile, binNames);
-		Pair<Map<String, COG>, Map<String, BinCOGs>> orthogroups_orthogroupsPerBin = Pair.of(orthogroups, orthogroupsPerBin);
-		return orthogroups_orthogroupsPerBin;
+		Pair<Map<String, GeneCluster>, Map<String, GeneClust4Bin>> geneClusters_geneClustersPerBin = Pair.of(geneClusters, geneClustersPerBin);
+		return geneClusters_geneClustersPerBin;
 	}
 	
 	private Path createInputSeqDB(Path inputForSeqDB) throws IOException, InterruptedException {

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
 import univie.cube.PICA_to_go.clustering.methods.MMseqsClustering;
 import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.fastaformat.FastaHeaders;
@@ -43,19 +43,19 @@ public abstract class Pica {
 	}
 	
 	
-	public static Path createInputPica(Path dir, Map<String, BinCOGs> orthogroupsPerBin, String pattern) {
+	public static Path createInputPica(Path dir, Map<String, GeneClust4Bin> geneClustersPerBin, String pattern) {
 		Path inputPicaForTrain = null;
 		try {
 			inputPicaForTrain = Files.createTempFile(dir, "input-pica_" + pattern, "");
-			MMseqsClustering.writePicaInputFile(orthogroupsPerBin, inputPicaForTrain);
+			MMseqsClustering.writePicaInputFile(geneClustersPerBin, inputPicaForTrain);
 		} catch (IOException e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "input-pica could not be generated")).handle();
 		}
 		return inputPicaForTrain;
 	}
 	
-	public static Path createInputPica(Map<String, BinCOGs> orthogroupsPerBin, String pattern) {
-		return createInputPica(WorkDir.getWorkDir().getTmpDir(), orthogroupsPerBin, pattern);
+	public static Path createInputPica(Map<String, GeneClust4Bin> geneClustersPerBin, String pattern) {
+		return createInputPica(WorkDir.getWorkDir().getTmpDir(), geneClustersPerBin, pattern);
 	}
 }
 	

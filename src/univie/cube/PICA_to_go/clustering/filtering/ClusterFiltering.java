@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.miscellaneous.Serialize;
 import univie.cube.PICA_to_go.pica.Pica;
@@ -28,36 +28,36 @@ public abstract class ClusterFiltering {
 	
 	/**
 	 * 
-	 * @param orthogroups, datastructure will be modified (=filtered) 
-	 * @param orthogroupsPerBin
+	 * @param geneClusters, datastructure will be modified (=filtered) 
+	 * @param geneClustersPerBin
 	 * @param picaCrossVal
 	 * @param pathToInputPhenotypes
 	 * @param feature
 	 * @param threads
-	 * @return Pair of CrossValPerCutOff (first: crossValWithoutCutoff, second: crossValBestCutoff); orthogroups will also be modified 
+	 * @return Pair of CrossValPerCutOff (first: crossValWithoutCutoff, second: crossValBestCutoff); geneClusters will also be modified 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	public abstract Pair<CrossValPerCutOff, CrossValPerCutOff> filter(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException;
+	public abstract Pair<CrossValPerCutOff, CrossValPerCutOff> filter(Map<String, GeneCluster> geneClusters, Map<String, GeneClust4Bin> geneClustersPerBin, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException;
 	
-	protected void removeCOGs(Map<String, COG> orthogroups, int cutoff) {
-		for(Map.Entry<String, COG> entry : orthogroups.entrySet()) {
+	protected void removeCOGs(Map<String, GeneCluster> geneClusters, int cutoff) {
+		for(Map.Entry<String, GeneCluster> entry : geneClusters.entrySet()) {
 			if(entry.getValue().getGenes().size() < cutoff) {
-				COG cog = entry.getValue();
-				cog.removeFromCurrentIndex();
+				GeneCluster geneCluster = entry.getValue();
+				geneCluster.removeFromCurrentIndex();
 			}
 		}
 	}
 	
-	protected void allCOGsToIndex(Map<String, COG> orthogroups) {
-		for(Map.Entry<String, COG> entry : orthogroups.entrySet()) entry.getValue().setInCurrentIndex();
+	protected void allCOGsToIndex(Map<String, GeneCluster> geneClusters) {
+		for(Map.Entry<String, GeneCluster> entry : geneClusters.entrySet()) entry.getValue().setInCurrentIndex();
 	}
 	
 
-	protected CrossVal picaCrossVal(Map<String, BinCOGs> orthogroupsPerBin, Path inputPhenotypes, String feature, ExecutorService es) throws IOException, InterruptedException {
+	protected CrossVal picaCrossVal(Map<String, GeneClust4Bin> geneClustersPerBin, Path inputPhenotypes, String feature, ExecutorService es) throws IOException, InterruptedException {
 		Path tmpDir = Files.createTempDirectory(WorkDir.getWorkDir().getTmpDir(), "picaCrossvalFiltering");
-		Path picaInputFile = Pica.createInputPica(tmpDir, orthogroupsPerBin, "");
+		Path picaInputFile = Pica.createInputPica(tmpDir, geneClustersPerBin, "");
 		PicaCrossvalidate pica = new PicaCrossvalidate(picaInputFile, tmpDir, inputPhenotypes, feature);
 		CompletableFuture<Map<String, String>> future = CompletableFuture.supplyAsync(() -> pica.call(), es);
 		future.whenComplete((task, throwable) -> {
@@ -71,15 +71,15 @@ public abstract class ClusterFiltering {
 		return crossVal;
 	}
 	
-	protected int getMaxClusterSize(Map<String, COG> orthogroups) {
-		return orthogroups.entrySet().parallelStream().max(Map.Entry.comparingByValue()).get().getValue().getGenes().size();
+	protected int getMaxClusterSize(Map<String, GeneCluster> geneClusters) {
+		return geneClusters.entrySet().parallelStream().max(Map.Entry.comparingByValue()).get().getValue().getGenes().size();
 	}
 	
 	/**
 	 * 
 	 * @param cutoffs
-	 * @param orthogroups
-	 * @param orthogroupsPerBin
+	 * @param geneClusters
+	 * @param geneClustersPerBin
 	 * @param pathToInputPhenotypes
 	 * @param picaCrossVal
 	 * @param feature
@@ -90,7 +90,7 @@ public abstract class ClusterFiltering {
 	 * @throws ExecutionException
 	 * @throws RuntimeException
 	 */
-	protected Pair<CrossValPerCutOff, CrossValPerCutOff> filterStartPICAThreads(List<Integer> cutoffs, Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException, RuntimeException {
+	protected Pair<CrossValPerCutOff, CrossValPerCutOff> filterStartPICAThreads(List<Integer> cutoffs, Map<String, GeneCluster> geneClusters, Map<String, GeneClust4Bin> geneClustersPerBin, Path pathToInputPhenotypes, String feature, int threads) throws IOException, InterruptedException, ExecutionException, RuntimeException {
 		CrossValPerCutOff bestCrossValCutoff = new CrossValPerCutOff();
 		CrossValPerCutOff crossValWithoutCutoff = new CrossValPerCutOff();
 		
@@ -105,7 +105,7 @@ public abstract class ClusterFiltering {
 		
 		
 		for(Integer cutoff : cutoffs) {
-			CrossVal crossVal = filterAnCrossVal(orthogroups, orthogroupsPerBin, pathToInputPhenotypes, feature, es, cutoff);
+			CrossVal crossVal = filterAnCrossVal(geneClusters, geneClustersPerBin, pathToInputPhenotypes, feature, es, cutoff);
 			picaThreads.put(cutoff, crossVal);
 		}
 		
@@ -128,13 +128,13 @@ public abstract class ClusterFiltering {
 			}
 		}
 		
-		//all COGs are filtered for the best cutoff(the filtering always has a global effect as orthogroups is a reference) 
-		allCOGsToIndex(orthogroups);
-		removeCOGs(orthogroups, bestCrossValCutoff.cutoff);
+		//all COGs are filtered for the best cutoff(the filtering always has a global effect as geneClusters is a reference) 
+		allCOGsToIndex(geneClusters);
+		removeCOGs(geneClusters, bestCrossValCutoff.cutoff);
 		
 		//recalculation of best cutoff (as it may be biased)
 		
-		CrossVal crossValTmp = filterAnCrossVal(orthogroups, orthogroupsPerBin, pathToInputPhenotypes, feature, es, bestCrossValCutoff.cutoff);
+		CrossVal crossValTmp = filterAnCrossVal(geneClusters, geneClustersPerBin, pathToInputPhenotypes, feature, es, bestCrossValCutoff.cutoff);
 		bestCrossValCutoff.crossValJson = crossValTmp.crossValJsonFuture.get();
 		bestCrossValCutoff.crossval = Double.valueOf(bestCrossValCutoff.crossValJson.get("mean_balanced_accuracy"));
 		
@@ -143,10 +143,10 @@ public abstract class ClusterFiltering {
 		return Pair.of(crossValWithoutCutoff, bestCrossValCutoff);
 	}
 	
-	private CrossVal filterAnCrossVal(Map<String, COG> orthogroups, Map<String, BinCOGs> orthogroupsPerBin, Path pathToInputPhenotypes, String feature, ExecutorService es, Integer cutoff) throws IOException, InterruptedException {
-		allCOGsToIndex(orthogroups);
-		removeCOGs(orthogroups, cutoff);
-		CrossVal crossVal = picaCrossVal(orthogroupsPerBin, pathToInputPhenotypes, feature, es);
+	private CrossVal filterAnCrossVal(Map<String, GeneCluster> geneClusters, Map<String, GeneClust4Bin> geneClustersPerBin, Path pathToInputPhenotypes, String feature, ExecutorService es, Integer cutoff) throws IOException, InterruptedException {
+		allCOGsToIndex(geneClusters);
+		removeCOGs(geneClusters, cutoff);
+		CrossVal crossVal = picaCrossVal(geneClustersPerBin, pathToInputPhenotypes, feature, es);
 		return crossVal;
 	}
 	

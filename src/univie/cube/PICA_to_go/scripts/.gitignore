@@ -1,7 +1,7 @@
 /CompareTsv.java
 /CreateDirs.java
 /CrossValParser.java
-/EggnogToOrthogroups.java
+/EggnogTogeneClusters.java
 /MMSeqsCompRepSeq.java
 /ModelInfo.java
 /RandomJaccard.java

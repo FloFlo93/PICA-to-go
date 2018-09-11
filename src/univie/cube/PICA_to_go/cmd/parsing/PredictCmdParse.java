@@ -33,7 +33,7 @@ public class PredictCmdParse extends CmdParse {
 		Option inputFilesOpt = new Option("i", true, "path to directory with bins to predict; required");
 		inputFilesOpt.setRequired(true);
 		options.addOption(inputFilesOpt);
-		Option featureNameOpt = new Option("f", true, "name of feature to predict; required");
+		Option featureNameOpt = new Option("f", true, "name of class to predict; required");
 		featureNameOpt.setRequired(true);
 		options.addOption(featureNameOpt);
 		Option outputResultOpt = new Option("o", true, "path to directory for output; required");

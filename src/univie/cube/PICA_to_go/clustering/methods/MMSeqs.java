@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.fastaformat.FastaHeaders;
 import univie.cube.PICA_to_go.global.Config;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
@@ -19,8 +19,8 @@ import univie.cube.PICA_to_go.miscellaneous.CmdExecution.Status;
 
 public abstract class MMSeqs {
 	
-	protected Map<String, BinCOGs> orthogroupsPerBin = null;
-	protected Map<String, COG> orthogroups = null;
+	protected Map<String, GeneClust4Bin> geneClustersPerBin = null;
+	protected Map<String, GeneCluster> geneClusters = null;
 
 	protected Map<String, String> fastaHeaders;
 	
@@ -64,32 +64,32 @@ public abstract class MMSeqs {
 	protected void parseClustOutput(Path clustOutputPath, List<String> filterBin) throws FileNotFoundException, IOException {
 		List<String> clustOutput = Files.readAllLines(clustOutputPath);
 		
-		parseOrthogroups(clustOutput, filterBin);
-		parseOrthogroupsPerBin(clustOutput, filterBin);
+		parsegeneClusters(clustOutput, filterBin);
+		parsegeneClustersPerBin(clustOutput, filterBin);
 	}
 	
-	private void parseOrthogroups(List<String> clustOutput, List<String> filterBin) {
-		Map<String, COG> orthogroupsTmp = new HashMap<String, COG>();
+	private void parsegeneClusters(List<String> clustOutput, List<String> filterBin) {
+		Map<String, GeneCluster> geneClustersTmp = new HashMap<String, GeneCluster>();
 		
 		for(String clustOutputLine : clustOutput) {
 			String[] columns = clustOutputLine.split("\t");
 			String cogName = columns[0];
 			String cogMember = columns[1];
 			if(filterBin != null && filterBin.stream().noneMatch(str -> str.equals(getBinNameFromString(cogMember)))) continue;
-			if(orthogroupsTmp.get(cogName) == null) {
-				COG cog = new COG(cogName);
-				cog.addGenes(cogMember);
-				orthogroupsTmp.put(cogName, cog);
+			if(geneClustersTmp.get(cogName) == null) {
+				GeneCluster geneCluster = new GeneCluster(cogName);
+				geneCluster.addGenes(cogMember);
+				geneClustersTmp.put(cogName, geneCluster);
 			}
-			else orthogroupsTmp.get(cogName).addGenes(cogMember);
+			else geneClustersTmp.get(cogName).addGenes(cogMember);
 		}
 		
-		this.orthogroups = orthogroupsTmp;
+		this.geneClusters = geneClustersTmp;
 	}
 	
-	private void parseOrthogroupsPerBin(List<String> clustOutput, List<String> filterBin) {
-		if(orthogroups == null) parseOrthogroups(clustOutput, filterBin); //should not be called as parseClustOutput normally should call parseOrthogroups before this method is called
-		Map<String, BinCOGs> orthogroupsPerBinTmp = new HashMap<String, BinCOGs>();
+	private void parsegeneClustersPerBin(List<String> clustOutput, List<String> filterBin) {
+		if(geneClusters == null) parsegeneClusters(clustOutput, filterBin); //should not be called as parseClustOutput normally should call parsegeneClusters before this method is called
+		Map<String, GeneClust4Bin> geneClustersPerBinTmp = new HashMap<String, GeneClust4Bin>();
 		
 		for(String clustOutputLine : clustOutput) {
 			String[] columns = clustOutputLine.split("\t");
@@ -99,17 +99,17 @@ public abstract class MMSeqs {
 			
 			if(filterBin != null && filterBin.stream().noneMatch(str -> str.equals(getBinNameFromString(cogMember)))) continue; 
 			
-			COG cog = orthogroups.get(cogName);
-			if(cog == null) throw new RuntimeException("orthogroup could not be found! should not happen!");
+			GeneCluster geneCluster = geneClusters.get(cogName);
+			if(geneCluster == null) throw new RuntimeException("gene cluster could not be found! should not happen!");
 			
-			BinCOGs binCOGs = orthogroupsPerBinTmp.get(binName);
-			if(binCOGs == null) {
-				binCOGs = new BinCOGs(binName);
-				orthogroupsPerBinTmp.put(binName, binCOGs);
+			GeneClust4Bin geneClust4Bin = geneClustersPerBinTmp.get(binName);
+			if(geneClust4Bin == null) {
+				geneClust4Bin = new GeneClust4Bin(binName);
+				geneClustersPerBinTmp.put(binName, geneClust4Bin);
 			}
-			binCOGs.addCOG(cog);
+			geneClust4Bin.addGeneCluster(geneCluster);
 		}
-		this.orthogroupsPerBin = orthogroupsPerBinTmp;
+		this.geneClustersPerBin = geneClustersPerBinTmp;
 	}
 	
 	private String getBinNameFromString(String str) {

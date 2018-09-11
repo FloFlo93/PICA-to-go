@@ -7,8 +7,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.clustering.filtering.LinearFiltering;
 import univie.cube.PICA_to_go.clustering.filtering.ClusterFiltering.CrossValPerCutOff;
 import univie.cube.PICA_to_go.clustering.methods.Clustering;
@@ -25,9 +25,9 @@ public abstract class BasePicaPipeline implements Pipeline {
 	@Override
 	public abstract void startPipeline(String[] args);
 	
-	//orthogroups / orthogroupsPerBin
-	protected Map<String, COG> orthogroups = null;
-	protected Map<String, BinCOGs> orthogroupsPerBin = null;
+	//geneClusters / geneClustersPerBin
+	protected Map<String, GeneCluster> geneClusters = null;
+	protected Map<String, GeneClust4Bin> geneClustersPerBin = null;
 	protected Clustering clusteringInstance = null;
 	
 	//protected Map<String, String> representativeSeq;
@@ -57,8 +57,8 @@ public abstract class BasePicaPipeline implements Pipeline {
 			
 			clusteringInstance.runClustering(threads);
 			clusteringInstance.createZippedDBFile();
-			orthogroups = clusteringInstance.getOrthogroups();
-			orthogroupsPerBin = clusteringInstance.getOrthogroupsPerBin();
+			geneClusters = clusteringInstance.getgeneClusters();
+			geneClustersPerBin = clusteringInstance.getgeneClustersPerBin();
 
 		} catch (IOException | RuntimeException | InterruptedException e1) {
 			String errorMessage = "Clustering process(" + clusteringProgram.toString().toLowerCase() + ")failed";
@@ -79,7 +79,7 @@ public abstract class BasePicaPipeline implements Pipeline {
 		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Filtering of clusters and crossvalidation started");
 		LinearFiltering clusterFiltering = new LinearFiltering();
 		try {
-			Pair<CrossValPerCutOff, CrossValPerCutOff> crossVal = clusterFiltering.filter(orthogroups, orthogroupsPerBin, inputPhenotypes, feature, threads);
+			Pair<CrossValPerCutOff, CrossValPerCutOff> crossVal = clusterFiltering.filter(geneClusters, geneClustersPerBin, inputPhenotypes, feature, threads);
 			return Pair.of(crossVal.getLeft().toString(), crossVal.getRight().toString());
 		} catch (IOException | InterruptedException | ExecutionException | RuntimeException e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "Process filterCluster failed")).handle();;

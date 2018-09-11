@@ -5,13 +5,13 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 
 public interface Clustering {
 	public void runClustering(int threadNum) throws IOException, InterruptedException, RuntimeException;
-	public Map<String, BinCOGs> getOrthogroupsPerBin() throws IOException;
-	public Map<String, COG> getOrthogroups() throws IOException;
+	public Map<String, GeneClust4Bin> getgeneClustersPerBin() throws IOException;
+	public Map<String, GeneCluster> getgeneClusters() throws IOException;
 	public void preparePicaInput(Path file) throws IOException;
 	public void runClustering(int threadNum, String[] additionalOpt) throws IOException, InterruptedException, RuntimeException;
 	public void createZippedDBFile() throws IOException, RuntimeException;
