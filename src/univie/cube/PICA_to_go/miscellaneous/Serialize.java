@@ -13,7 +13,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.out.logging.CustomLogger;
 
 public class Serialize {
@@ -60,17 +60,17 @@ public class Serialize {
 		return outputPath;
 	}
 	
-	public static Map<String, COG> getOrthogroupsFromFile(Path path) throws IOException {
+	public static Map<String, GeneCluster> getgeneClustersFromFile(Path path) throws IOException {
 		Map<String, String> cogMapStr = getFromFile(path);
 		
-		Map<String, COG> orthogroups = new HashMap<String, COG>();
+		Map<String, GeneCluster> geneClusters = new HashMap<String, GeneCluster>();
 		
 		for(Map.Entry<String, String> cogStr : cogMapStr.entrySet()) {
-			COG cog = COG.convertToCOG(cogStr.getValue(), cogStr.getKey());
-			orthogroups.put(cogStr.getKey(), cog);
+			GeneCluster geneCluster = GeneCluster.convertToCOG(cogStr.getValue(), cogStr.getKey());
+			geneClusters.put(cogStr.getKey(), geneCluster);
 		} 
 		
-		return orthogroups;
+		return geneClusters;
 	}
 	
 	public static Map<String, String> getFromFile(Path path) throws IOException {
@@ -81,10 +81,10 @@ public class Serialize {
 		return cogMapStr;
 	}
 
-	public static void writeGeneClustersToFile(Map<String, COG> orthogroups, Path outputFile) throws IOException {
+	public static void writeGeneClustersToFile(Map<String, GeneCluster> geneClusters, Path outputFile) throws IOException {
 		Map<String, String> cogMapStr = new HashMap<String, String>();
 		
-		for(Map.Entry<String, COG> cogMap : orthogroups.entrySet()) {
+		for(Map.Entry<String, GeneCluster> cogMap : geneClusters.entrySet()) {
 			String key = cogMap.getKey();
 			String value = cogMap.getValue().getCogString();
 			cogMapStr.put(key, value);

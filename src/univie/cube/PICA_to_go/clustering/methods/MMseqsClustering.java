@@ -19,8 +19,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import univie.cube.PICA_to_go.archive.ZipCreator;
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.fastaformat.FastaHeaders;
 import univie.cube.PICA_to_go.global.Config;
@@ -118,15 +118,15 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	
 
 	@Override
-	public Map<String, BinCOGs> getOrthogroupsPerBin() throws IOException {
-		if(orthogroupsPerBin == null) readResultFileAndParseClustOutput();
-		return this.orthogroupsPerBin;
+	public Map<String, GeneClust4Bin> getgeneClustersPerBin() throws IOException {
+		if(geneClustersPerBin == null) readResultFileAndParseClustOutput();
+		return this.geneClustersPerBin;
 	}
 
 	@Override
-	public Map<String, COG> getOrthogroups() throws IOException {
-		if(orthogroups == null) readResultFileAndParseClustOutput();
-		return this.orthogroups;
+	public Map<String, GeneCluster> getgeneClusters() throws IOException {
+		if(geneClusters == null) readResultFileAndParseClustOutput();
+		return this.geneClusters;
 	}
 	
 	@Override
@@ -138,7 +138,7 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	@Override
 	public void preparePicaInput(Path file) throws IOException {
 		readResultFileAndParseClustOutput();
-		writePicaInputFile(this.orthogroupsPerBin, file);	
+		writePicaInputFile(this.geneClustersPerBin, file);	
 	}
 	
 	private void readResultFileAndParseClustOutput() throws IOException {
@@ -149,10 +149,10 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	}
 	
 	
-	public static void writePicaInputFile(Map<String, BinCOGs> orthogroupsPerBin, Path file) throws FileNotFoundException {
+	public static void writePicaInputFile(Map<String, GeneClust4Bin> geneClustersPerBin, Path file) throws FileNotFoundException {
 		PrintWriter writer = new PrintWriter(file.toFile());
 		
-		for(Map.Entry<String, BinCOGs> bin : orthogroupsPerBin.entrySet()){
+		for(Map.Entry<String, GeneClust4Bin> bin : geneClustersPerBin.entrySet()){
 			writer.println(bin.getValue().toString());
 		}
 		

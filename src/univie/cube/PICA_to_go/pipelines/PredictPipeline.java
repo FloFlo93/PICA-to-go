@@ -8,8 +8,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.clustering.methods.MMSeqsClusterupdate;
 import univie.cube.PICA_to_go.clustering.methods.MMseqsClustering;
 import univie.cube.PICA_to_go.cmd.arguments.PredictCmdArguments;
@@ -37,26 +37,31 @@ public class PredictPipeline extends BasePicaPipeline {
 		
 		//-------CLUSTERUPDATE------------------------------------------------//
 		
-		Pair<Map<String, COG>, Map<String, BinCOGs>> orthogroups_orthogroupsPerBin = null;
+		Pair<Map<String, GeneCluster>, Map<String, GeneClust4Bin>> geneClusters_geneClustersPerBin = null;
 		try {
 			MMSeqsClusterupdate mmseqsClusterupdate = new MMSeqsClusterupdate(predictBinsDir, WorkDir.getWorkDir().getTmpDir());
-			orthogroups_orthogroupsPerBin = mmseqsClusterupdate.clusterUpdate(predictCmdArguments.getThreads());
+			geneClusters_geneClustersPerBin = mmseqsClusterupdate.clusterUpdate(predictCmdArguments.getThreads());
 		} catch (IOException | InterruptedException | RuntimeException e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "MMSEQS Clusterupdate failed")).handle();
 		}
 		
+<<<<<<< HEAD
 		Map<String, COG> orthogroups = orthogroups_orthogroupsPerBin.getLeft();
 		Map<String, BinCOGs> orthogroupsPerBin = orthogroups_orthogroupsPerBin.getRight();
 		System.out.println("orthogroups size " + orthogroups.size()); //TODO: delete
 		System.out.println("orthogroupsPerBin size " + orthogroupsPerBin.size()); //TODO: delete
+=======
+		Map<String, GeneCluster> geneClusters = geneClusters_geneClustersPerBin.getLeft();
+		Map<String, GeneClust4Bin> geneClustersPerBin = geneClusters_geneClustersPerBin.getRight();
+>>>>>>> refs/heads/fastaValWeak
 		try {
-			Serialize.writeGeneClustersToFile(orthogroups, Paths.get(predictCmdArguments.getOutputResults().toString(), "orthogroups.json"));
+			Serialize.writeGeneClustersToFile(geneClusters, Paths.get(predictCmdArguments.getOutputResults().toString(), "geneClusters.json"));
 		} catch (IOException e) {
-			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "Orthogroups could not be written to file")).handle();
+			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "geneClusters could not be written to file")).handle();
 		}
 		Path picaInput = Paths.get(WorkDir.getWorkDir().getTmpDir().toString(), "inputPica");
 		try {
-			MMseqsClustering.writePicaInputFile(orthogroupsPerBin, picaInput);
+			MMseqsClustering.writePicaInputFile(geneClustersPerBin, picaInput);
 		} catch (FileNotFoundException e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "inputFile for PICA could not be generated")).handle();
 		}

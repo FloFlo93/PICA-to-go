@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import univie.cube.PICA_to_go.clustering.datatypes.COG;
+import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 import univie.cube.PICA_to_go.miscellaneous.Serialize;
 
 public class FeatureRankingRefGenome extends FeatureRanking {
 
 	private Map<String, String> fastaHeaders;
 	private List<String> refGenomes;
-	private Map<String, COG> orthogroups;
+	private Map<String, GeneCluster> geneClusters;
 	
 	//"overloaded" variables with default values 
 	protected int limitLines = Integer.MAX_VALUE;
@@ -32,11 +32,11 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 	 * @param refGenomes if null -> all genomes are reference genomes
 	 * @throws IOException
 	 */
-	public FeatureRankingRefGenome(Path modelFile, Path outputResults, String feature, Map<String, String> fastaHeaders, List<String> refGenomes, Map<String, COG> orthogroups) throws IOException {
+	public FeatureRankingRefGenome(Path modelFile, Path outputResults, String feature, Map<String, String> fastaHeaders, List<String> refGenomes, Map<String, GeneCluster> geneClusters) throws IOException {
 		super(modelFile, outputResults, feature);
 		this.fastaHeaders = fastaHeaders;
 		this.refGenomes = refGenomes;
-		this.orthogroups = orthogroups;
+		this.geneClusters = geneClusters;
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 		if(refGenomes == null) 
 			return fastaHeaders.get(representativeSeq);
 		else {
-			Set<String> allGenesOfCluster = orthogroups.get(representativeSeq).getGenes();
+			Set<String> allGenesOfCluster = geneClusters.get(representativeSeq).getGenes();
 			Optional<String> alternativeRepSeq = allGenesOfCluster.stream()
 										.filter(gene -> refGenomes.contains(gene.split("\\^_")[0]))
 										.findAny();

@@ -2,7 +2,6 @@ package univie.cube.PICA_to_go.pipelines;
 
 
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,7 +67,7 @@ public class TrainPipeline extends BasePicaPipeline {
 	     * has to be performed at this point (filtering is completed if filtering is activated; 
 	     * if not activated: inputPica will be needed for crossvalidation too
 	     */
-	    Path inputPica = Pica.createInputPica(orthogroupsPerBin, "");
+	    Path inputPica = Pica.createInputPica(geneClustersPerBin, "");
 	    
 	    if(! trainCmdArguments.isFilterCOGs()) {
 	    	CustomLogger.getInstance().log(LoggingWeight.INFO, "PICA crossvalidation started");
@@ -102,7 +101,7 @@ public class TrainPipeline extends BasePicaPipeline {
 	    //----------------GENE-ClUSTERS-TO-FILE--------------------------------------------------//
 	    CustomLogger.getInstance().log(LoggingWeight.INFO, "Gene clusters are written to file");
 	    try {
-			Serialize.writeGeneClustersToFile(orthogroups, Paths.get(trainCmdArguments.getOutputResults().toString() + "/" + "gene_clusters.json"));
+			Serialize.writeGeneClustersToFile(geneClusters, Paths.get(trainCmdArguments.getOutputResults().toString() + "/" + "gene_clusters.json"));
 		} catch (IOException | RuntimeException e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.ERROR, "Could not write gene_clusters.json to output directory")).handle();
 		}
@@ -122,7 +121,7 @@ public class TrainPipeline extends BasePicaPipeline {
 				featureRanking = new FeatureRankingBlast(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), super.clusteringInstance, trainCmdArguments.getLimitBlast());
 			else  {
 				Map<String, String> fastaHeaders = super.clusteringInstance.getFastaHeaders();
-				featureRanking = new FeatureRankingRefGenome(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), fastaHeaders, trainCmdArguments.getRefGenomes(), orthogroups);
+				featureRanking = new FeatureRankingRefGenome(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), fastaHeaders, trainCmdArguments.getRefGenomes(), geneClusters);
 			}
 			featureRanking.runFeatureRanking();
 		} catch (IOException | InterruptedException e) {

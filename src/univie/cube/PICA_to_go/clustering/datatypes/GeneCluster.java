@@ -3,7 +3,7 @@ package univie.cube.PICA_to_go.clustering.datatypes;
 import java.util.HashSet;
 import java.util.Set;
 
-public class COG implements Comparable<COG> {
+public class GeneCluster implements Comparable<GeneCluster> {
 	
 	public void removeFromCurrentIndex() {
 		this.inCurrentIndex = false;
@@ -20,16 +20,16 @@ public class COG implements Comparable<COG> {
 	
 	private boolean inCurrentIndex = true;
 	
-	public COG(String cogName) {
-		this.cogName = cogName;
+	public GeneCluster(String geneClusterName) {
+		this.geneClusterName = geneClusterName;
 	}
 	
-	public COG(Set<String> genes, String cogName) {
+	public GeneCluster(Set<String> genes, String geneClusterName) {
 		this.genes = genes;
-		this.cogName= cogName;
+		this.geneClusterName= geneClusterName;
 	}
 	
-	private String cogName;
+	private String geneClusterName;
 
 	private Set<String> genes = new HashSet<String>(); //header files for each gene
 	
@@ -38,19 +38,19 @@ public class COG implements Comparable<COG> {
 	}
 	
 	public String getCOGName() {
-		return cogName;
+		return geneClusterName;
 	}
 	
 	/**
 	 * 
 	 * @param cogString: white space delimited genes
-	 * @return COG object with genes from input
+	 * @return GeneCluster object with genes from input
 	 */
-	public static COG convertToCOG(String cogString, String cogName) {
-		COG cog = new COG(cogName);
+	public static GeneCluster convertToCOG(String cogString, String cogName) {
+		GeneCluster geneCluster = new GeneCluster(cogName);
 		String[] genesArray = cogString.split("\\s+");
-		for(String gene : genesArray) cog.addGenes(gene);
-		return cog;
+		for(String gene : genesArray) geneCluster.addGenes(gene);
+		return geneCluster;
 	}
 	/**
 	 * 
@@ -70,9 +70,9 @@ public class COG implements Comparable<COG> {
 	}
 
 	@Override
-	public int compareTo(COG cog) {
-		if(this.genes.size() < cog.genes.size()) return -1;
-		else if ((this.genes.size() == cog.genes.size())) return 0;
+	public int compareTo(GeneCluster geneCluster) {
+		if(this.genes.size() < geneCluster.genes.size()) return -1;
+		else if ((this.genes.size() == geneCluster.genes.size())) return 0;
 		else return 1;
 	}
 	
