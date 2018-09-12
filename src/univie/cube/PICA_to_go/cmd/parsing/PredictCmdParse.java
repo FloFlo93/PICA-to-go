@@ -43,7 +43,7 @@ public class PredictCmdParse extends CmdParse {
 		options.addOption(debugOpt);
 		Option threadsOpt = new Option("t", true, "number of threads, default: all available cores");
 		options.addOption(threadsOpt);
-		Option tmpDirOpt = new Option("tmp_dir", false, "Specify a directory for tmp files. By default /tmp/ will be used. All tmp files are are deleted when program terminates (except if debug mode is turned on)");
+		Option tmpDirOpt = new Option("tmpdir", true, "Specify a directory for tmp files. By default /tmp/ will be used. All tmp files are are deleted when program terminates (except if debug mode is turned on)");
 		options.addOption(tmpDirOpt);
 		Option translationTableOpt = new Option("transtable", true, "Specify a translation table (default: 11)");
 		options.addOption(translationTableOpt);
@@ -69,7 +69,7 @@ public class PredictCmdParse extends CmdParse {
 		predictCmdArguments.setOutputResults(cmd.getOptionValue("o"));
 		predictCmdArguments.setDebugMode(cmd.hasOption("d"));
 		predictCmdArguments.setThreads(cmd.getOptionValue("t"));
-		predictCmdArguments.setTmpDir(cmd.getOptionValue("tmp_dir"));
+		predictCmdArguments.setTmpDir(cmd.getOptionValue("tmpdir"));
 		predictCmdArguments.setTranslationTable(cmd.getOptionValue("transtable", "11"));
 		return predictCmdArguments;
 	}

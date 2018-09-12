@@ -58,7 +58,7 @@ public class TrainCmdParse extends CmdParse {
 		options.addOption(refgenomesOpt);
 		Option filterCOGsOpt = new Option("filter", false, "Reduces number of COGs (by size limit) based on improvements of balanced accuracy in crossvalidation. Will increase accuracy");
 		options.addOption(filterCOGsOpt);
-		Option tmpDirOpt = new Option("tmp_dir", true, "Specify a directory for tmp files. By default /tmp/ will be used. All tmp files are are deleted when program terminates");
+		Option tmpDirOpt = new Option("tmpdir", true, "Specify a directory for tmp files. By default /tmp/ will be used. All tmp files are are deleted when program terminates");
 		options.addOption(tmpDirOpt);
 		Option limitLinesBlast = new Option("limit_bl", true, "Limit the number of features, for feature ranking with remote blast, to the most relevant ones {default: 10}; drastically affects the runtime of the program");
 		options.addOption(limitLinesBlast);
@@ -84,7 +84,7 @@ public class TrainCmdParse extends CmdParse {
 		trainCmdArguments.setThreads(cmd.getOptionValue("t"));
 		trainCmdArguments.setClusteringProgram(cmd.getOptionValue("c", "mmseqs_cluster").toUpperCase(), "c");
 		trainCmdArguments.setFilterCOGs(cmd.hasOption("filter"));
-		trainCmdArguments.setTmpDir(cmd.getOptionValue("tmp_dir"));
+		trainCmdArguments.setTmpDir(cmd.getOptionValue("tmpdir"));
 		trainCmdArguments.setLimitBlast(cmd.getOptionValue("limit_bl", "10"));
 		trainCmdArguments.setTranslationTable(cmd.getOptionValue("transtable", "11"));
 		return trainCmdArguments;

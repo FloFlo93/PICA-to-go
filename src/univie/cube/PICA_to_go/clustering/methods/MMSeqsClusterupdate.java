@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import univie.cube.PICA_to_go.clustering.datatypes.BinCOGs;
 import univie.cube.PICA_to_go.clustering.datatypes.COG;
 import univie.cube.PICA_to_go.directories.WorkDir;
+import univie.cube.PICA_to_go.fastaformat.FastaHeaders;
 import univie.cube.PICA_to_go.global.Config;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution.Status;
@@ -51,9 +52,10 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	 * @throws RuntimeException
 	 */
 	public Pair<Map<String, COG>, Map<String, BinCOGs>> clusterUpdate(int threads) throws InterruptedException, IOException, RuntimeException {		
+		System.out.println(predictBinsDir.toString());
 		Files.walk(predictBinsDir).filter(path -> Files.isRegularFile(path)).forEach(file -> {
 			String fileName = file.getFileName().toString();
-			binNames.add(fileName.substring(0, fileName.lastIndexOf(".")));
+			binNames.add(FastaHeaders.getFileNameWithoutSuffix(fileName));
 		});
 		Path inputForSeqDB = concatInputFiles(predictBinsDir);
 		Path concatSeqDB = null;

@@ -13,7 +13,6 @@ public class InputPreparationPredict extends InputPreparation {
 	
 	//TODO: check if modelFile is valid
 
-	private Path inputClusteringDir = null;
 	private PredictCmdArguments predictCmdArguments;
 	private Path modelFile;
 
@@ -25,7 +24,7 @@ public class InputPreparationPredict extends InputPreparation {
 	
 	@Override
 	public Path getInputClusteringDir() {
-		return this.inputClusteringDir;
+		return super.inputClusteringDir;
 	}
 	
 	public Path getModelFile() {

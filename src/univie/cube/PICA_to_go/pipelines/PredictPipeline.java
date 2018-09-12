@@ -47,6 +47,8 @@ public class PredictPipeline extends BasePicaPipeline {
 		
 		Map<String, COG> orthogroups = orthogroups_orthogroupsPerBin.getLeft();
 		Map<String, BinCOGs> orthogroupsPerBin = orthogroups_orthogroupsPerBin.getRight();
+		System.out.println("orthogroups size " + orthogroups.size()); //TODO: delete
+		System.out.println("orthogroupsPerBin size " + orthogroupsPerBin.size()); //TODO: delete
 		try {
 			Serialize.writeGeneClustersToFile(orthogroups, Paths.get(predictCmdArguments.getOutputResults().toString(), "orthogroups.json"));
 		} catch (IOException e) {
