@@ -49,8 +49,8 @@ public abstract class MMSeqs {
 	protected Path concatDBs(Path newDB, Path oldDB, Path outputDir, Path outputLog) throws IOException, InterruptedException {
 		Path concatDB = Paths.get(outputDir.toString(), "concatDB.mmseqs");
 		Path concatDB_h = Paths.get(outputDir.toString(), "concatDB.mmseqs_h");
-		String[] command_concatDB = {Config.getExecutablePaths().getMMSEQS_EX().toString(), "concatdbs", newDB.toString(), oldDB.toString(), concatDB.toString()};
-		String[] command_concatDB_h = {Config.getExecutablePaths().getMMSEQS_EX().toString(), "concatdbs", newDB.toString() + "_h", oldDB.toString() + "_h", concatDB_h.toString()};
+		String[] command_concatDB = {Config.getExecutablePaths().getMMSEQS_EX().toString(), "concatdbs", oldDB.toString(), newDB.toString(), concatDB.toString()}; //TODO: insert preserve keys if not work
+		String[] command_concatDB_h = {Config.getExecutablePaths().getMMSEQS_EX().toString(), "concatdbs", oldDB.toString() + "_h", newDB.toString() + "_h", concatDB_h.toString()};
 		Status status = CmdExecution.execute(command_concatDB, outputLog, "dbconcat");
 		Status status_h = CmdExecution.execute(command_concatDB_h, outputLog, "dbconcat_h");
 		if(status.errorOccured || status_h.errorOccured) throw new RuntimeException();

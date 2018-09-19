@@ -26,8 +26,6 @@ import univie.cube.PICA_to_go.pica.FeatureRankingRefGenome;
 import univie.cube.PICA_to_go.pica.Pica;
 import univie.cube.PICA_to_go.pica.PicaCrossvalidate;
 
-//TODO: extend debug option (log files only in debug mode, useful ?)
-
 
 
 public class TrainPipeline extends BasePicaPipeline {

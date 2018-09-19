@@ -37,7 +37,7 @@ public class GeneCluster implements Comparable<GeneCluster> {
 		genes.add(gene);
 	}
 	
-	public String getCOGName() {
+	public String getClusterName() {
 		return geneClusterName;
 	}
 	
@@ -56,14 +56,14 @@ public class GeneCluster implements Comparable<GeneCluster> {
 	 * 
 	 * @return white space delimited genes
 	 */
-	public String getCogString() {
+	public String getGeneClusterString() {
 		StringBuilder cogString = new StringBuilder("");
 		for(String gene : genes) {
 			cogString.append(gene); 
 			cogString.append(" ");
 		}
 		return cogString.toString();
-	}
+	} 
 	
 	public Set<String> getGenes() {
 		return genes;

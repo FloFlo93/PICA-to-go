@@ -30,7 +30,6 @@ public abstract class BasePicaPipeline implements Pipeline {
 	protected Map<String, GeneClust4Bin> geneClustersPerBin = null;
 	protected Clustering clusteringInstance = null;
 	
-	//protected Map<String, String> representativeSeq;
 	
 	protected Path modelFile = null;
 
@@ -104,22 +103,6 @@ public abstract class BasePicaPipeline implements Pipeline {
 		} catch (Exception e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "in PICA train")).handle();
 		}
-	}
-	
-	protected int parseThreads(String threadsStr) {
-		int threads;
-		if(threadsStr == null || ! threadsStr.matches("\\d+")) {
-			threads = Runtime.getRuntime().availableProcessors();
-			String logMessage = "INFO: No/invalid option for thread number specified, all available cores (" + threads + ") used";
-			CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, logMessage);
-		}
-		else {
-			threads = Integer.parseInt(threadsStr);
-			String logMessage = "INFO: " + threads + " threads will be used (user specified)";
-			CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, logMessage);
-		}
-		
-		return threads;
 	}
 	
 }

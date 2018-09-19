@@ -17,11 +17,11 @@ public class GeneClust4Bin {
 	}
 	
 	public void addGeneCluster(GeneCluster geneCluster) {
-		GeneClusterAbundance singleCOGAbundance = cogAbundances.get(geneCluster.getCOGName());
+		GeneClusterAbundance singleCOGAbundance = cogAbundances.get(geneCluster.getClusterName());
 		if(singleCOGAbundance != null) singleCOGAbundance.abundance += 1;
 		else {
 			singleCOGAbundance = new GeneClusterAbundance(geneCluster, 1);
-			cogAbundances.put(geneCluster.getCOGName(), singleCOGAbundance);
+			cogAbundances.put(geneCluster.getClusterName(), singleCOGAbundance);
 		}
 	}
 	
@@ -31,11 +31,11 @@ public class GeneClust4Bin {
 	 * @param abundance: this value will be added to the former abundance (if entry already exists), otherwise a new entry with the specified abundance will be created
 	 */
 	public void addGeneCluster(GeneCluster geneCluster, long addAbundance) {
-		GeneClusterAbundance singleCOGAbundance = cogAbundances.get(geneCluster.getCOGName());
+		GeneClusterAbundance singleCOGAbundance = cogAbundances.get(geneCluster.getClusterName());
 		if(singleCOGAbundance != null) singleCOGAbundance.abundance += addAbundance;
 		else {
 			singleCOGAbundance = new GeneClusterAbundance(geneCluster, addAbundance);
-			cogAbundances.put(geneCluster.getCOGName(), singleCOGAbundance);
+			cogAbundances.put(geneCluster.getClusterName(), singleCOGAbundance);
 		}
 	}
 	
@@ -54,7 +54,7 @@ public class GeneClust4Bin {
 		for(GeneClusterAbundance abundanceSingleCOG : cogAbundances.values()) {
 			if(abundanceSingleCOG.geneCluster.isInCurrentIndex()) {
 				for(int a=0; a < abundanceSingleCOG.abundance; a++) {
-					b.append(abundanceSingleCOG.geneCluster.getCOGName()); 
+					b.append(abundanceSingleCOG.geneCluster.getClusterName()); 
 					b.append("\t");
 				}
 			}

@@ -45,15 +45,8 @@ public class PredictPipeline extends BasePicaPipeline {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "MMSEQS Clusterupdate failed")).handle();
 		}
 		
-<<<<<<< HEAD
-		Map<String, COG> orthogroups = orthogroups_orthogroupsPerBin.getLeft();
-		Map<String, BinCOGs> orthogroupsPerBin = orthogroups_orthogroupsPerBin.getRight();
-		System.out.println("orthogroups size " + orthogroups.size()); //TODO: delete
-		System.out.println("orthogroupsPerBin size " + orthogroupsPerBin.size()); //TODO: delete
-=======
 		Map<String, GeneCluster> geneClusters = geneClusters_geneClustersPerBin.getLeft();
 		Map<String, GeneClust4Bin> geneClustersPerBin = geneClusters_geneClustersPerBin.getRight();
->>>>>>> refs/heads/fastaValWeak
 		try {
 			Serialize.writeGeneClustersToFile(geneClusters, Paths.get(predictCmdArguments.getOutputResults().toString(), "geneClusters.json"));
 		} catch (IOException e) {

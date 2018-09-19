@@ -77,7 +77,7 @@ function mmseqs_version {
 	elif (( $SSE41_SUPPORT > 0)); then
 		local MMSEQS_VERSION="SSE41"	
 	else
-		echo "#pica-to-go-launcher: Fatal Error: Your computer does not support AVX2 or SSE4.1. Pica-to-go cannot be launched. We are sorry!"
+		echo "#pica-to-go-launcher: Error: Your hardware does not support AVX2 or SSE4.1."
 		exit 1
 	fi
 	export MMSEQS_VERSION

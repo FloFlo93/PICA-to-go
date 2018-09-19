@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +58,6 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 		String[] commandCreateDB = {mmseqsEx, "createdb", inputFile.getFileName().toString(), inputDbName};
 		String[] commandClust = {mmseqsEx, clusteringCommandHook(), inputDbName, resultDbName, "tmp", "-c", c, "-e", e, "--min-seq-id", minSeqId ,"--threads",Integer.toString(threadNum)};
 		commandClust = ArrayUtils.addAll(commandClust, addOptions);
-		System.out.println(Arrays.toString(commandClust));
 		String[] commandCreateTsv = {mmseqsEx, "createtsv", inputDbName, inputDbName, resultDbName, tsvClustFileName};
 		CmdExecution.Status status = CmdExecution.execute(commandCreateDB, WorkDir.getWorkDir().getTmpDir(), "clust_createdb", clusteringDirInput.toFile());
 		CmdExecution.printIfErrorOccured(status);
@@ -100,8 +98,8 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 		return ArrayUtils.addAll(commandClust, addOpt);
 	}
 	
-	private void initializeFastaHeaders(Path concatProteomeFile) {
-		super.fastaHeaders = FastaHeaders.getFastaHeadersFromConcatProteomes(concatProteomeFile);
+	private void initializeFastaHeaders(Path concatproteinFile) {
+		super.fastaHeaders = FastaHeaders.getFastaHeadersFromConcatproteins(concatproteinFile);
 	}
 	
 	@Override

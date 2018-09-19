@@ -14,7 +14,7 @@ public class FastaHeaders {
 	
 	private static String binGeneSeperator = "^_";
 	
-	public static Map<String, String> getFastaHeadersFromConcatProteomes(Path path) {
+	public static Map<String, String> getFastaHeadersFromConcatproteins(Path path) {
 		//get chunks of fasta header + sequence
 		List<String> chunks;
 		try {

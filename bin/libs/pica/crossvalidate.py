@@ -6,12 +6,12 @@ Perform cross-validation with a given training algorithm and classification algo
 @date 2010-02-16
 """
 import os,sys
+import json
 from optparse import OptionParser
 from pica.io.FileIO import FileIO
 from pica.CrossValidation import CrossValidation
 from pica.TestConfiguration import TestConfiguration
 from pica.io.FileIO import error
-import json
 from pprint import pprint # add by RVF
 
 if __name__ == "__main__":

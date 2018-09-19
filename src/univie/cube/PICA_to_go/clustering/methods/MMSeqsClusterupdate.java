@@ -19,6 +19,8 @@ import univie.cube.PICA_to_go.global.Config;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution.Status;
 import univie.cube.PICA_to_go.out.error.ErrorHandler;
+import univie.cube.PICA_to_go.out.logging.CustomLogger;
+import univie.cube.PICA_to_go.out.logging.CustomLogger.LoggingWeight;
 
 
 public class MMSeqsClusterupdate extends MMSeqs {
@@ -51,12 +53,8 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	 * @throws IOException
 	 * @throws RuntimeException
 	 */
-<<<<<<< HEAD
-	public Pair<Map<String, COG>, Map<String, BinCOGs>> clusterUpdate(int threads) throws InterruptedException, IOException, RuntimeException {		
-		System.out.println(predictBinsDir.toString());
-=======
 	public Pair<Map<String, GeneCluster>, Map<String, GeneClust4Bin>> clusterUpdate(int threads) throws InterruptedException, IOException, RuntimeException {		
->>>>>>> refs/heads/fastaValWeak
+		CustomLogger.getInstance().log(LoggingWeight.INFO, "Cluster-Update started");
 		Files.walk(predictBinsDir).filter(path -> Files.isRegularFile(path)).forEach(file -> {
 			String fileName = file.getFileName().toString();
 			binNames.add(FastaHeaders.getFileNameWithoutSuffix(fileName));
@@ -92,7 +90,7 @@ public class MMSeqsClusterupdate extends MMSeqs {
 	private Path clusterupdateCommand(Path concatSeqDB, int threads) throws IOException, InterruptedException {
 		String mappedSeq = unzippedDbDir.toString() + File.separator + "mappedSeq" + ".mmseqs";
 		String newClust = unzippedDbDir.toString() + File.separator + "newClust" + ".mmseqs";
-		String[] commandUpdateSeqDB = {Config.getExecutablePaths().getMMSEQS_EX().toString(), "clusterupdate", unzippedDbDir.toString() + File.separator + inputDbName, concatSeqDB.toString(), unzippedDbDir.toString() + File.separator + clustDbName, mappedSeq.toString(), newClust.toString(), "tmp"};
+		String[] commandUpdateSeqDB = {Config.getExecutablePaths().getMMSEQS_EX().toString(), "clusterupdate", unzippedDbDir.toString() + File.separator + inputDbName, concatSeqDB.toString(), unzippedDbDir.toString() + File.separator + clustDbName, mappedSeq.toString(), newClust.toString(), "tmp", "-e", Config.getInstance().getMMSEQS_E(), "-c", Config.getInstance().getMMSEQS_C(), "--min-seq-id", Config.getInstance().getMMSEQS_MIN_SEQ_ID()};
 		
 		Status status = CmdExecution.execute(commandUpdateSeqDB, WorkDir.getWorkDir().getTmpDir(), "clusterupdate", Files.createTempDirectory(unzippedDbDir, "mmseqs_clusterupdate_tmp").toFile());
 		if(! status.errorOccured) return createTsv(mappedSeq, newClust);

@@ -2,14 +2,13 @@ package univie.cube.PICA_to_go.pica;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
-import univie.cube.PICA_to_go.miscellaneous.Serialize;
+
 
 public class FeatureRankingRefGenome extends FeatureRanking {
 

@@ -7,10 +7,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+
 import univie.cube.PICA_to_go.archive.FastaGzHandler;
 import univie.cube.PICA_to_go.cmd.arguments.CmdArguments;
 import univie.cube.PICA_to_go.directories.WorkDir;
-import univie.cube.PICA_to_go.fastaformat.FastaValidateStrong;
 import univie.cube.PICA_to_go.fastaformat.FastaValidateWeak;
 import univie.cube.PICA_to_go.out.error.ErrorHandler;
 import univie.cube.PICA_to_go.out.logging.CustomLogger;
@@ -31,29 +32,39 @@ public abstract class InputPreparation {
 		FastaGzHandler fastaGzHandler = new FastaGzHandler(inputBins);
 		List<Path> allFiles = fastaGzHandler.getFiles();
 		List<Path> genomes = new ArrayList<Path>();
-		List<Path> proteomes = new ArrayList<Path>();
 		
-		//TODO: protein files and genome files correction (AND change name to proteins instead of proteomes), additional dir needed im tmp
+		//TODO: protein files and genome files correction (AND change name to proteins instead of proteins), additional dir needed im tmp
+		
+		Path correctedGenomesSubDir = Files.createTempDirectory(WorkDir.getWorkDir().getTmpDir(), "corrected_genomes");
 		
 		for(Path path : allFiles) {
 			FastaValidateWeak fastaValidateWeak = new FastaValidateWeak(path);
 			if(!fastaValidateWeak.isHeaderUnique()) {
 				CustomLogger.getInstance().log(LoggingWeight.WARNING, "The fasta header of " + path.getFileName().toString() + " is not unique. This file will not be processed");
 			}
-			else if (fastaValidateWeak.getSequenceType() == FastaValidateWeak.SequenceType.DNA) genomes.add(path);
-			else if (fastaValidateWeak.getSequenceType() == FastaValidateWeak.SequenceType.PROTEIN) proteomes.add(path);
+			else if (fastaValidateWeak.getSequenceType() == FastaValidateWeak.SequenceType.DNA) {
+				List<String> correctedLines = fastaValidateWeak.removeInvalidChars();
+				if(fastaValidateWeak.hasInvalidChars()) {
+					CustomLogger.getInstance().log(LoggingWeight.WARNING, "Fasta file " + path.getFileName().toString() + " contains invalid characters.These characters will be changed to 'N'");
+					Path destFile = Paths.get(correctedGenomesSubDir.toString(), path.getFileName().toString());
+					Files.write(destFile, correctedLines);
+					genomes.add(destFile);
+				}
+				else genomes.add(path);
+			}
+			else if (fastaValidateWeak.getSequenceType() == FastaValidateWeak.SequenceType.PROTEIN) {
+				List<String> correctedLines = fastaValidateWeak.removeInvalidChars();
+				if(fastaValidateWeak.hasInvalidChars()) 					
+					CustomLogger.getInstance().log(LoggingWeight.ERROR, "Fasta file " + path.getFileName().toString() + " contains invalid characters.These characters will be changed to 'X'");
+				Files.write(Paths.get(inputClusteringDir.toString(), path.getFileName().toString()), correctedLines);
+			}
 		}
+		
+
 		
 		findGenes(threads, genomes, inputClusteringDir, translationTable);
+		FileUtils.deleteDirectory(correctedGenomesSubDir.toFile());
 		
-		for(Path path : proteomes) {
-			Files.copy(path, Paths.get(inputClusteringDir.toString(), path.getFileName().toString()));
-		}
-		
-		for(Path path : invalidProteomes) {
-			List<String> correctedLines = FastaValidateWeak.removeInvalidChars(Files.readAllLines(path));
-			Files.write(Paths.get(inputClusteringDir.toString(), path.getFileName().toString()), correctedLines);
-		}
 		fastaGzHandler.close();
 	}
 	

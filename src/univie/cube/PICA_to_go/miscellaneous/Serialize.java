@@ -86,18 +86,11 @@ public class Serialize {
 		
 		for(Map.Entry<String, GeneCluster> cogMap : geneClusters.entrySet()) {
 			String key = cogMap.getKey();
-			String value = cogMap.getValue().getCogString();
+			String value = cogMap.getValue().getGeneClusterString();
 			cogMapStr.put(key, value);
 		}
 		
 		String json = Serialize.mapToJson(cogMapStr);
-		writeToFile(outputFile, json);
-	}
-	
-	public static void writeJaccardIndexToFile(Map<String, Double> jaccardIndex, Path outputFile) throws IOException{
-		Map<String, String> inputJsonConversion = new HashMap<String, String>();
-		for(Map.Entry<String, Double> entry : jaccardIndex.entrySet()) inputJsonConversion.put(entry.getKey(), entry.getValue().toString());
-		String json = mapToJson(inputJsonConversion);
 		writeToFile(outputFile, json);
 	}
 	
