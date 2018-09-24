@@ -1,8 +1,12 @@
 <b> Author: Florian Piewald </b>
 
-<b> Affiliation: Division of Computational Systems Biology (CUBE), University of Vienna </b>
+<b> Affiliation: [Division of Computational Systems Biology (CUBE), University of Vienna](http://cube.univie.ac.at/) </b>
 
-PICA-to-go is a fast machine learning pipeline for the prediction of microbial phenotypes. It clusters all genes using the MMSeqs2 clustering suite and uses these clusters as features for machine learning, which is done by the PICA framework. The pipeline manages to cluster a model for ciprofloxacin resistance in Acinetobacter baumannii in less than 10 minutes on a normal desktop machine with a balanced accuracy of 0.93. Further information is available in Florian Piewalds masters thesis (will be available soon) that was written within implementing this program.
+PICA-to-go is a fast machine learning pipeline for the prediction of microbial phenotypes. It clusters all genes using the [MMSeqs2](https://github.com/soedinglab/MMseqs2) clustering suite and uses these clusters as features for machine learning, which is done by the [PICA](https://github.com/univieCUBE/PICA) framework. The pipeline manages to cluster a model for ciprofloxacin resistance in Acinetobacter baumannii in less than 10 minutes on a normal desktop machine with a balanced accuracy of 0.93. Further information is available in Florian Piewalds masters thesis (will be available soon) that was written within implementing this program.
+
+
+
+# Table of contents
 
 
 <!--ts-->
