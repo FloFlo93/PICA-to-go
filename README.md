@@ -4,6 +4,13 @@
 
 PICA-to-go is a fast machine learning pipeline for the prediction of microbial phenotypes. It clusters all genes using the MMSeqs2 clustering suite and uses these clusters as features for machine learning, which is done by the PICA framework. The pipeline manages to cluster a model for ciprofloxacin resistance in Acinetobacter baumannii in less than 10 minutes on a normal desktop machine with a balanced accuracy of 0.93. Further information is available in Florian Piewalds masters thesis (will be available soon) that was written within implementing this program.
 
+# Table of Contents
+1. [Installation](#installation)
+2. [Usage of PICA-to-go train](#usage)
+3. [Usage of PICA-to-go predict](#predict)
+
+<a name="installation"/>
+
 # Installation
 
 The program is currently only available for Linux. There are three possibilies to install PICA-to-go:
@@ -27,7 +34,10 @@ The program is currently only available for Linux. There are three possibilies t
 1. Clone/download the github repository (master branch): ``` git clone https://github.com/FloFlo93/PICA-to-go ```
 2. Execute ```./install.sh ```. The install script depends on Maven (make sure Maven is installed). Change into the bin/ folder (```cd bin/```) and execute ```./pica-to-go```. As mentioned before, the script automatically checks if all dependencies are available.
 
+
 # Usage of the program
+
+<a name="train"/>
 
 ## PICA-to-go train
 
@@ -154,6 +164,8 @@ PATH_TO_THE_PICA_TO_GO_EXECUTABLE train -f ciprofloxacin_resistant -i proteins -
 #### debug option
 It is possible to run the program with -d. This leads to the case that the stacktrace is printed and that the temporary directory is not deleted. This is a feature purely used to debug the program in case of an error.
 
+
+<a name="predict"/>
 
 ## PICA-to-go predict
 The database-archive and the pica model archive of a trained PICA model are needed to perform phenotype predictions. Furthermore, the class name has to be specified as well as an output directory (as in the train mode).
