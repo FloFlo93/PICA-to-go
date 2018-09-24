@@ -8,15 +8,24 @@ PICA-to-go is a fast machine learning pipeline for the prediction of microbial p
 
 The program is currently only available for Linux. There are three possibilies to install PICA-to-go:
 
-## Singularity Container
-Install singularity (if it is not installed on your system; https://www.sylabs.io/singularity/) and download the PICA-to-go Singularity container, which is already shipped with all dependencies, from:
-This option is highly recommended compared over the other options as no amnual dependency management is necessary.
+## Singularity Container (recommended)
 
-## Use the binary release
-Download the single executable jar-file with all major dependencies (PICA, MMSeqs2), certain dependencies have to be installed manually (numpy, Java VM >= 1.8, Python2). The program can be directly executed running ./pica-to-go. This run script will automatically detect if a dependency is not installed and throw an error or otherwise run the program.
+1. Install Singularity (see https://www.sylabs.io/singularity/)
+2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download version PICA-to-go 1.0. 
+3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.0.simg ``` with all necessary parameters)
 
-## Build PICA-to-go yourself
-Clone/download the github repository (master branch), execute ./install.sh. The install script depends on Maven (make sure Maven is installed). Change into the bin/ folder and execute ./pica-to-go. As before, the script automatically checks if all dependencies are available.
+
+## Use the binary release (not recommended)
+1. Click on the "releases" button in the Github repository
+2. Download the latest release 
+3. Decompress the file using  ``` tar -xf \[filename.tar.xz\] ``` (the ```tar``` and ```xz``` package have to be installed)
+4. As output, you find a folder called "bin". 
+5. Change into this folder (``` cd bin/ ``) and call ``` ./pica-to-go ``` with all necessary parameters.
+6. The script will automatically detect if a dependency is not installed. In this case, you have to install this dependency manually. While major dependencies are shipped with this release (such as Prodigal, PICA or MMSeqs), the Java virtual machine  (>= 1.8), python2 or the python librarynumpy have to be installed on the system. 
+
+## Build PICA-to-go yourself (not recommended)
+1. Clone/download the github repository (master branch): ``` git clone https://github.com/FloFlo93/PICA-to-go ``` 
+2. Execute ```./install.sh ```. The install script depends on Maven (make sure Maven is installed). Change into the bin/ folder (```cd bin/```) and execute ```./pica-to-go```. As mentioned before, the script automatically checks if all dependencies are available.
 
 # Usage of the program
 
