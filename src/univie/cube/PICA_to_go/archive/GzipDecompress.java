@@ -9,7 +9,7 @@ import java.util.zip.GZIPInputStream;
 
 /**
  * 
- * @author florian
+ * @author florian piewald
  * decompresses a gzip file (not to be confused with a zip archive)
  * based on: https://www.mkyong.com/java/how-to-decompress-file-from-gzip-file/ 
  */
