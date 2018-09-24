@@ -12,18 +12,21 @@ yum install curl
 curl -L -b "oraclelicense=a" -O http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_linux-x64_bin.rpm
 yum -y localinstall jre-10.0.2_linux-x64_bin.rpm
 
-# unzip
-%appinstall unzip
-yum -y install unzip
+# tar
+%appinstall tar
+yum -y install tar
 
+# xz
+%appinstall xz
+yum -y install xz
 
 # pica-to-go
 %appinstall pica-to-go
-COMMIT=b6bdfdb
-curl -LO https://github.com/FloFlo93/PICA-to-go/archive/${COMMIT}.zip
-unzip ${COMMIT}.zip
-rm -rf ${COMMIT}.zip
-mv PICA* /opt/
+curl -LO https://github.com/FloFlo93/PICA-to-go/releases/download/1.0/PICA-to-go-1.0.tar.xz
+tar -xf PICA-to-go-1.0.tar.xz
+rm -rf PICA-to-go-1.0.tar.xz
+mkdir /opt/pica-to-go/
+mv bin /opt/pica-to-go/
 
 # numpy
 %appinstall numpy
@@ -31,4 +34,4 @@ yum -y install numpy
 
 # runscript
 %runscript 
-/opt/PICA*/bin/pica-to-go $@
+/opt/pica-to-go/bin/pica-to-go $@
