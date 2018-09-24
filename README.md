@@ -56,7 +56,7 @@ The program is currently only available for Linux. There are three possibilies t
 ## Singularity Container (recommended)
 
 1. Install Singularity (see https://www.sylabs.io/singularity/)
-2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download version PICA-to-go 1.0.
+2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download PICA-to-go version 1.0.
 3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.0.simg ``` with all necessary parameters)
 
 
@@ -97,7 +97,7 @@ The phenotype file is a tab seperated file containing all information about the 
 
 <img src=".phenotype_file.png"></img>
 
-The name of the bins in the phenotype file has to correspond to the naming used in the directory containing all bins. In case the file suffix is faa, fna, fa or fasta (with or without an additional gz suffix), it is allowed (but not required) to skip the suffix in the phenotype file. For example it is fine if the bin is named ERR410035.fna and in the phenotype file the file is called ERR410035. It is, however, strongly recommended to keep the naming identical.
+The name of the bins in the phenotype file has to correspond to the naming used in the directory containing all bins. In case the file suffix is faa, fna, fa or fasta (with or without an additional gz suffix), it is allowed (but not required) to skip the suffix in the phenotype file. For example it is fine if the bin is named ERR410035.fna, but is refered as ERR410035 in the phenotype file. It is, however, strongly recommended to keep the naming identical.
 
 ### Class name
 The name of the class corresponds to the name used in the phenotype file.
@@ -116,7 +116,7 @@ This file is a zip archive that is not indended to be read by the user, but cont
 #### CLASS_NAME.rank.raw.tsv
 This file contains the output of the feature ranking (importance of each gene cluster for the prediction). The file contains the name of the representative sequence of a cluster (binName^_fastaHeaderIdentifier) and the importance of each gene cluster for the model (value between zero and one).
 #### CLASS_NAME.rank.annotated.tsv
-As the name of the representative sequence may not be very meaningful, this file contains an additional column with an annotation for each representative sequence (see ...).
+As the name of the representative sequence may not be very meaningful, this file contains an additional column with an annotation for each representative sequence (see [Annotation method](#annotation-method)).
 #### database.mmseqs
 This is a zip archive containing all necessary files of the MMSeqs database, that are needed to run PICA-to-go predict.
 #### gene_clusters.json
@@ -146,16 +146,16 @@ PATH_TO_THE_PICA_TO_GO_EXECUTABLE train -f ciprofloxacin_resistant -i proteins -
 
 6. Inspect the files, after the program is finished. There should be six files:
 
-ciprofloxacin_resistant.picamodel
-ciprofloxacin_resistant.rank.annotated.tsv
-ciprofloxacin_resistant.rank.raw.tsv
-database.mmseqs
-gene_clusters.json
-pica-crossvalidation-no-filtering.json
+* ciprofloxacin_resistant.picamodel
+* ciprofloxacin_resistant.rank.annotated.tsv
+* ciprofloxacin_resistant.rank.raw.tsv
+* database.mmseqs
+* gene_clusters.json
+* pica-crossvalidation-no-filtering.json
 
 The purpose of each file has been stated in the previous section. To get the accuracy of the model, open pica-crossvalidation-no-filtering.json:
 
-less pica-crossvalidation-no-filtering.json
+``` less pica-crossvalidation-no-filtering.json ```
 
 The mean balanced accuracy should be around 0.93. This means that the model is able to classify 93% bins correctly (in case a balanced set of bins is given 50% YES, 50% NO).
 
@@ -185,7 +185,7 @@ The limit of the number of remote Blast searches, can be changed using the -limi
 PATH_TO_THE_PICA_TO_GO_EXECUTABLE train -f ciprofloxacin_resistant -i proteins -p ciprofloxacin_Acinetobacter.training.txt -o output -a blast -limit_bl 20
 ```
 #### Feature reduction
-PICA-to-go offers an option that reduces the number of clusters based on cluster size. The underlying idea behind this is that small clusters may not be as relevant for a prediction than large clusters. To find an optimal cut-off regarding the cluster size, an exhaustive search is performed (PICA crossvalidate.py is executed multiple times to find the cut-off leading to the highest mean balanced accuracy). This step may lead to better results, but can drastically increase the runtime.
+PICA-to-go offers an option that reduces the number of clusters based on cluster size. The underlying idea behind this is that small clusters may not be as relevant for a prediction as large clusters. To find an optimal cut-off regarding the cluster size, an exhaustive search is performed (PICA crossvalidate.py is executed multiple times to find the cut-off leading to the highest mean balanced accuracy). This step may lead to better results, but can drastically increase the runtime.
 A feature reduction is done by adding -filter to the program, e.g.
 ```
 PATH_TO_THE_PICA_TO_GO_EXECUTABLE train -f ciprofloxacin_resistant -i proteins -p ciprofloxacin_Acinetobacter.training.txt -o output -filter
