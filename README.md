@@ -32,7 +32,7 @@ To perform a PICA training, the program needs a directory containing all bins th
 
 The phenotype file is a tab seperated file containing all information about the affiliation of a bin to a certain phenotype, e.g.
 
-<img src="phenotype_file.png"></img>
+<img src=".phenotype_file.png"></img>
 
 The name of the bins in the phenotype file has to correspond to the naming used in the directory containing all bins. In case the file suffix is faa, fna, fa or fasta (with or without an additional gz suffix), it is allowed (but not required) to skip the suffix in the phenotype file. For example it is fine if the bin is named ERR410035.fna and in the phenotype file the file is called ERR410035. It is, however, strongly recommended to keep the naming identical.
 
