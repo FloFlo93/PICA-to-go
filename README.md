@@ -11,20 +11,20 @@ The program is currently only available for Linux. There are three possibilies t
 ## Singularity Container (recommended)
 
 1. Install Singularity (see https://www.sylabs.io/singularity/)
-2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download version PICA-to-go 1.0. 
+2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download version PICA-to-go 1.0.
 3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.0.simg ``` with all necessary parameters)
 
 
 ## Use the binary release (not recommended)
 1. Click on the "releases" button in the Github repository
-2. Download the latest release 
-3. Decompress the file using  ``` tar -xf \[filename.tar.xz\] ``` (the ```tar``` and ```xz``` package have to be installed)
-4. As output, you find a folder called "bin". 
-5. Change into this folder (``` cd bin/ ``) and call ``` ./pica-to-go ``` with all necessary parameters.
-6. The script will automatically detect if a dependency is not installed. In this case, you have to install this dependency manually. While major dependencies are shipped with this release (such as Prodigal, PICA or MMSeqs), the Java virtual machine  (>= 1.8), python2 or the python librarynumpy have to be installed on the system. 
+2. Download the latest release
+3. Decompress the file using  ``` tar -xf [filename.tar.xz] ``` (the ```tar``` and ```xz``` package have to be installed)
+4. As output, you find a folder called "bin".
+5. Change into this folder (``` cd bin/ ```) and call ``` ./pica-to-go ``` with all necessary parameters.
+6. The script will automatically detect if a dependency is not installed. In this case, you have to install this dependency manually. While major dependencies are shipped with this release (such as Prodigal, PICA or MMSeqs), the Java virtual machine  (>= 1.8), python2 or the python librarynumpy have to be installed on the system.
 
 ## Build PICA-to-go yourself (not recommended)
-1. Clone/download the github repository (master branch): ``` git clone https://github.com/FloFlo93/PICA-to-go ``` 
+1. Clone/download the github repository (master branch): ``` git clone https://github.com/FloFlo93/PICA-to-go ```
 2. Execute ```./install.sh ```. The install script depends on Maven (make sure Maven is installed). Change into the bin/ folder (```cd bin/```) and execute ```./pica-to-go```. As mentioned before, the script automatically checks if all dependencies are available.
 
 # Usage of the program
@@ -76,7 +76,7 @@ The accuracy of a model (balanced accuracy, F1 score, raw accuracy, standard dev
 ```
 cd PATH_TO_PICA_TO_GO_ROOT_DIR/example/cipro-res-a-baumannii/train
 ```
-3. Decompress the bins used as training data
+3. Decompress the bins used as training data (make sure that the ```xz``` package is installed too)
 ```
 tar -xf proteins.tar.xz
 ```
@@ -169,7 +169,7 @@ The following steps require that PICA-to-go train has been run on the training s
 ```
 cd PATH_TO_PICA_TO_GO_ROOT_DIR/example/cipro-res-a-baumannii/predict
 ```
-2. Decompress the bins used as training data
+2. Decompress the bins used as training data (make sure that the ```xz``` package is installed too)
 ```
 tar -xf proteins.tar.xz
 ```
