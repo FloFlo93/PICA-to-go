@@ -4,22 +4,57 @@
 
 PICA-to-go is a fast machine learning pipeline for the prediction of microbial phenotypes. It clusters all genes using the MMSeqs2 clustering suite and uses these clusters as features for machine learning, which is done by the PICA framework. The pipeline manages to cluster a model for ciprofloxacin resistance in Acinetobacter baumannii in less than 10 minutes on a normal desktop machine with a balanced accuracy of 0.93. Further information is available in Florian Piewalds masters thesis (will be available soon) that was written within implementing this program.
 
-# Table of Contents
-1. [Installation](#installation)
-2. [Usage of PICA-to-go train](#usage)
-3. [Usage of PICA-to-go predict](#predict)
 
-<a name="installation"/>
+<!--ts-->
+   * [Installation](#installation)
+      * [Singularity Container (recommended)](#singularity-container-recommended)
+      * [Use the binary release (not recommended)](#use-the-binary-release-not-recommended)
+      * [Build PICA-to-go yourself (not recommended)](#build-pica-to-go-yourself-not-recommended)
+   * [Usage of the program](#usage-of-the-program)
+      * [PICA-to-go train](#pica-to-go-train)
+         * [Phenotype file](#phenotype-file)
+         * [Class name](#class-name)
+         * [DIR_WITH_BINS](#dir_with_bins)
+         * [OUTPUT directory](#output-directory)
+            * [CLASS_NAME.picamodel](#class_namepicamodel)
+            * [CLASS_NAME.rank.raw.tsv](#class_namerankrawtsv)
+            * [CLASS_NAME.rank.annotated.tsv](#class_namerankannotatedtsv)
+            * [database.mmseqs](#databasemmseqs)
+            * [gene_clusters.json](#gene_clustersjson)
+            * [pica-crossvalidation-no-filtering.json](#pica-crossvalidation-no-filteringjson)
+         * [Example](#example)
+         * [Additional arguments](#additional-arguments)
+            * [Annotation method](#annotation-method)
+            * [Feature reduction](#feature-reduction)
+            * [Number of threads](#number-of-threads)
+            * [Temporary directory](#temporary-directory)
+            * [Translation table](#translation-table)
+            * [debug option](#debug-option)
+      * [PICA-to-go predict](#pica-to-go-predict)
+         * [Example](#example-1)
+         * [Additional options](#additional-options)
+   * [Data](#data)
+      * [Example data](#example-data)
+      * [Raw Data](#raw-data)
+
+<!-- Added by: florian, at: 2018-09-24T17:49+02:00 -->
+
+<!--te-->
+
+
 
 # Installation
 
 The program is currently only available for Linux. There are three possibilies to install PICA-to-go:
+
+
 
 ## Singularity Container (recommended)
 
 1. Install Singularity (see https://www.sylabs.io/singularity/)
 2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download version PICA-to-go 1.0.
 3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.0.simg ``` with all necessary parameters)
+
 
 
 ## Use the binary release (not recommended)
@@ -30,14 +65,19 @@ The program is currently only available for Linux. There are three possibilies t
 5. Change into this folder (``` cd bin/ ```) and call ``` ./pica-to-go ``` with all necessary parameters.
 6. The script will automatically detect if a dependency is not installed. In this case, you have to install this dependency manually. While major dependencies are shipped with this release (such as Prodigal, PICA or MMSeqs), the Java virtual machine  (>= 1.8), python2 or the python librarynumpy have to be installed on the system.
 
+
+
+
 ## Build PICA-to-go yourself (not recommended)
 1. Clone/download the github repository (master branch): ``` git clone https://github.com/FloFlo93/PICA-to-go ```
 2. Execute ```./install.sh ```. The install script depends on Maven (make sure Maven is installed). Change into the bin/ folder (```cd bin/```) and execute ```./pica-to-go```. As mentioned before, the script automatically checks if all dependencies are available.
 
 
+
+
 # Usage of the program
 
-<a name="train"/>
+
 
 ## PICA-to-go train
 
@@ -165,7 +205,7 @@ PATH_TO_THE_PICA_TO_GO_EXECUTABLE train -f ciprofloxacin_resistant -i proteins -
 It is possible to run the program with -d. This leads to the case that the stacktrace is printed and that the temporary directory is not deleted. This is a feature purely used to debug the program in case of an error.
 
 
-<a name="predict"/>
+
 
 ## PICA-to-go predict
 The database-archive and the pica model archive of a trained PICA model are needed to perform phenotype predictions. Furthermore, the class name has to be specified as well as an output directory (as in the train mode).
