@@ -1,10 +1,13 @@
 package univie.cube.PICA_to_go.clustering.datatypes;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GeneCluster implements Comparable<GeneCluster> {
+public class GeneCluster implements Comparable<GeneCluster>, Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	public void removeFromCurrentIndex() {
 		this.inCurrentIndex = false;
 	}

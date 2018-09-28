@@ -7,12 +7,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.mapdb.HTreeMap;
+
 import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
 
 
 public class FeatureRankingRefGenome extends FeatureRanking {
 
-	private Map<String, String> fastaHeaders;
+	private HTreeMap<String, String> fastaHeaders;
 	private List<String> refGenomes;
 	private Map<String, GeneCluster> geneClusters;
 	
@@ -31,7 +33,7 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 	 * @param refGenomes if null -> all genomes are reference genomes
 	 * @throws IOException
 	 */
-	public FeatureRankingRefGenome(Path modelFile, Path outputResults, String feature, Map<String, String> fastaHeaders, List<String> refGenomes, Map<String, GeneCluster> geneClusters) throws IOException {
+	public FeatureRankingRefGenome(Path modelFile, Path outputResults, String feature, HTreeMap<String, String> fastaHeaders, List<String> refGenomes, HTreeMap<String, GeneCluster> geneClusters) throws IOException {
 		super(modelFile, outputResults, feature);
 		this.fastaHeaders = fastaHeaders;
 		this.refGenomes = refGenomes;
@@ -41,8 +43,9 @@ public class FeatureRankingRefGenome extends FeatureRanking {
 	@Override
 	protected String getAnnotation(String representativeSeq) {
 		representativeSeq = representativeSeq.replaceAll("\\s+","");
-		if(refGenomes == null) 
+		if(refGenomes == null) {
 			return fastaHeaders.get(representativeSeq);
+		}
 		else {
 			Set<String> allGenesOfCluster = geneClusters.get(representativeSeq).getGenes();
 			Optional<String> alternativeRepSeq = allGenesOfCluster.stream()

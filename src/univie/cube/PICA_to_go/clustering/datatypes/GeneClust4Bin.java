@@ -1,10 +1,14 @@
 package univie.cube.PICA_to_go.clustering.datatypes;
 
+
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class GeneClust4Bin {
+
+public class GeneClust4Bin implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private String binIdentifier;
 	private Map<String, GeneClusterAbundance> cogAbundances = new LinkedHashMap<String, GeneClusterAbundance>();
 	
@@ -62,7 +66,7 @@ public class GeneClust4Bin {
 		return b.toString();
 	}
 	
-	public static class GeneClusterAbundance {
+	public static class GeneClusterAbundance implements Serializable {
 		public GeneCluster geneCluster;
 		public long abundance;
 		
@@ -70,6 +74,7 @@ public class GeneClust4Bin {
 			this.geneCluster = geneCluster; 
 			this.abundance = abundance;
 		}
-	} 
+	}
+
 	
 }

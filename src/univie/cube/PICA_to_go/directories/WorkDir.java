@@ -3,9 +3,12 @@ package univie.cube.PICA_to_go.directories;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.io.FileUtils;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
 
 import univie.cube.PICA_to_go.out.debug.DebugMode;
 import univie.cube.PICA_to_go.out.error.ErrorHandler;
@@ -18,6 +21,8 @@ public class WorkDir {
 	
 	private Path tmpDirParent;
 	private long inputBinSize;
+	
+	private DB db;
 	
 	private static WorkDir workDirSingleton;
 	
@@ -39,8 +44,18 @@ public class WorkDir {
 	private void create() throws IOException {
 		if(tmpDirParent != null) this.tmpDir = Files.createTempDirectory(tmpDirParent, "PICA_to_go");
 		else tmpDir = Files.createTempDirectory("PICA_to_go");
+		createDB();
 		spaceCheck();
 		shutdownHook();
+	}
+	
+	private void createDB() {
+		Path dbFile = Paths.get(this.tmpDir.toString(), "mapdb");
+		this.db = DBMaker
+				.fileDB(dbFile.toFile())
+				.fileMmapEnableIfSupported()
+				.fileMmapPreclearDisable()
+				.make();
 	}
 	
 	private void shutdownHook() {
@@ -64,6 +79,10 @@ public class WorkDir {
 	
 	public Path getTmpDir() {
 		return tmpDir;
+	}
+	
+	public DB getDB() {
+		return this.db;
 	}
 	
 	//removes tmp dir + content, TODO: should be called every time a fatal exception happens in finally block

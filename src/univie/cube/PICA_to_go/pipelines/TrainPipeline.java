@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.mapdb.HTreeMap;
 
 import univie.cube.PICA_to_go.cmd.arguments.TrainCmdArguments;
 import univie.cube.PICA_to_go.cmd.parsing.TrainCmdParse;
@@ -118,7 +119,7 @@ public class TrainPipeline extends BasePicaPipeline {
 			if(trainCmdArguments.getAnnotation() == Annotation.BLAST)
 				featureRanking = new FeatureRankingBlast(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), super.clusteringInstance, trainCmdArguments.getLimitBlast());
 			else  {
-				Map<String, String> fastaHeaders = super.clusteringInstance.getFastaHeaders();
+				HTreeMap<String, String> fastaHeaders = super.clusteringInstance.getFastaHeaders();
 				featureRanking = new FeatureRankingRefGenome(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), fastaHeaders, trainCmdArguments.getRefGenomes(), geneClusters);
 			}
 			featureRanking.runFeatureRanking();

@@ -57,8 +57,7 @@ public class MMSeqsRepresentative {
 	}
 	
 	private Optional<String> searchFastaFile(String key, Path fastaOut) throws IOException {
-		String[] singleEntry = Files.readAllLines(fastaOut)
-				.stream()
+		String[] singleEntry = Files.lines(fastaOut)
 				.collect(Collectors.joining("\n"))
 				.split(">");
 		return Arrays.stream(singleEntry)

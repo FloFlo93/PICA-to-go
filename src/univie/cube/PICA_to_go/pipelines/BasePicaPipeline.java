@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.mapdb.HTreeMap;
 
 import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
 import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
@@ -26,7 +27,7 @@ public abstract class BasePicaPipeline implements Pipeline {
 	public abstract void startPipeline(String[] args);
 	
 	//geneClusters / geneClustersPerBin
-	protected Map<String, GeneCluster> geneClusters = null;
+	protected HTreeMap<String, GeneCluster> geneClusters = null;
 	protected Map<String, GeneClust4Bin> geneClustersPerBin = null;
 	protected Clustering clusteringInstance = null;
 	
@@ -45,7 +46,6 @@ public abstract class BasePicaPipeline implements Pipeline {
 	 * @param threads
 	 */
 	protected void clustering(ClusteringProgram clusteringProgram, Path inputClusteringDir, Path outputResults, Annotation annotation, int threads) {
-		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Start to cluster genes using MMSeqs2");
 		try {
 			if(clusteringProgram.equals(ClusteringProgram.MMSEQS_CLUSTER)) {
 				clusteringInstance = new MMseqsClustering(inputClusteringDir, outputResults);

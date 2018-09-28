@@ -9,9 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
 
 import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
 import univie.cube.PICA_to_go.clustering.datatypes.GeneCluster;
+import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.fastaformat.FastaHeaders;
 import univie.cube.PICA_to_go.global.Config;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
@@ -20,9 +25,9 @@ import univie.cube.PICA_to_go.miscellaneous.CmdExecution.Status;
 public abstract class MMSeqs {
 	
 	protected Map<String, GeneClust4Bin> geneClustersPerBin = null;
-	protected Map<String, GeneCluster> geneClusters = null;
+	protected HTreeMap<String, GeneCluster> geneClusters = null;
 
-	protected Map<String, String> fastaHeaders;
+	protected HTreeMap<String, String> fastaHeaders;
 	
 	/**concats all *fa files to all.fa and renames the header before (filename will be added: filename_)
 	 * 
@@ -62,42 +67,47 @@ public abstract class MMSeqs {
 	}
 	
 	protected void parseClustOutput(Path clustOutputPath, List<String> filterBin) throws FileNotFoundException, IOException {
-		List<String> clustOutput = Files.readAllLines(clustOutputPath);
 		
-		parsegeneClusters(clustOutput, filterBin);
-		parsegeneClustersPerBin(clustOutput, filterBin);
+		Stream<String> clustOutputStream = Files.lines(clustOutputPath);
+		parsegeneClusters(clustOutputStream, filterBin);
+		clustOutputStream = Files.lines(clustOutputPath); //necessary as stream gets consumed before
+		parsegeneClustersPerBin(clustOutputStream, filterBin);
 	}
 	
-	private void parsegeneClusters(List<String> clustOutput, List<String> filterBin) {
-		Map<String, GeneCluster> geneClustersTmp = new HashMap<String, GeneCluster>();
+	private void parsegeneClusters(Stream<String> clustOutputStream, List<String> filterBin) {
+		HTreeMap<String, GeneCluster> geneClustersTmp = WorkDir.getWorkDir().getDB()
+																.hashMap("geneClusters", Serializer.STRING, Serializer.JAVA)
+																.create();
 		
-		for(String clustOutputLine : clustOutput) {
+		clustOutputStream.forEach((String clustOutputLine) -> {
 			String[] columns = clustOutputLine.split("\t");
 			String cogName = columns[0];
 			String cogMember = columns[1];
-			if(filterBin != null && filterBin.stream().noneMatch(str -> str.equals(getBinNameFromString(cogMember)))) continue;
+			if(filterBin != null && filterBin.stream().noneMatch(str -> str.equals(getBinNameFromString(cogMember)))) return;
 			if(geneClustersTmp.get(cogName) == null) {
 				GeneCluster geneCluster = new GeneCluster(cogName);
 				geneCluster.addGenes(cogMember);
 				geneClustersTmp.put(cogName, geneCluster);
 			}
 			else geneClustersTmp.get(cogName).addGenes(cogMember);
-		}
+		});
+		
 		
 		this.geneClusters = geneClustersTmp;
 	}
 	
-	private void parsegeneClustersPerBin(List<String> clustOutput, List<String> filterBin) {
-		if(geneClusters == null) parsegeneClusters(clustOutput, filterBin); //should not be called as parseClustOutput normally should call parsegeneClusters before this method is called
+	private void parsegeneClustersPerBin(Stream<String> clustOutputStream, List<String> filterBin) {
+		if(geneClusters == null) parsegeneClusters(clustOutputStream, filterBin); //should not be called as parseClustOutput normally should call parsegeneClusters before this method is called
+		
 		Map<String, GeneClust4Bin> geneClustersPerBinTmp = new HashMap<String, GeneClust4Bin>();
 		
-		for(String clustOutputLine : clustOutput) {
+		clustOutputStream.forEach((String clustOutputLine) -> {
 			String[] columns = clustOutputLine.split("\t");
 			String cogName = columns[0];
 			String cogMember = columns[1];
 			String binName = getBinNameFromString(cogMember);
 			
-			if(filterBin != null && filterBin.stream().noneMatch(str -> str.equals(getBinNameFromString(cogMember)))) continue; 
+			if(filterBin != null && filterBin.stream().noneMatch(str -> str.equals(getBinNameFromString(cogMember)))) return; 
 			
 			GeneCluster geneCluster = geneClusters.get(cogName);
 			if(geneCluster == null) throw new RuntimeException("gene cluster could not be found! should not happen!");
@@ -108,7 +118,8 @@ public abstract class MMSeqs {
 				geneClustersPerBinTmp.put(binName, geneClust4Bin);
 			}
 			geneClust4Bin.addGeneCluster(geneCluster);
-		}
+		});
+		
 		this.geneClustersPerBin = geneClustersPerBinTmp;
 	}
 	
