@@ -32,7 +32,7 @@ public class PicaPredict extends Pica implements Callable<Void> {
 	}
 	
 	private void testPica() throws IOException, InterruptedException {
-		String[] commandTestPica = {Config.getExecutablePaths().getPICA_TEST().toString(), "-s", inputPica.toString(), "-m", modelFile.toString(), "-t", feature};
+		String[] commandTestPica = {Config.getExecutablePaths().getPYTHON_PATH().toString(), Config.getExecutablePaths().getPICA_TEST().toString(), "-s", inputPica.toString(), "-m", modelFile.toString(), "-t", feature};
 		ArrayUtils.addAll(commandTestPica, Config.getExecutablePaths().getADD_ARG_PICA_TEST());
 		Path outputPica = Paths.get(outputResults.toString(), "outputPica.txt");
 		Serialize.writeToFile(outputPica, "");

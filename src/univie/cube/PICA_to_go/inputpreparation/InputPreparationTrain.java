@@ -10,6 +10,7 @@ import java.util.List;
 import univie.cube.PICA_to_go.cmd.arguments.TrainCmdArguments;
 import univie.cube.PICA_to_go.out.error.ErrorHandler;
 
+//TODO: check if feature file is delivered in a valid format
 
 public class InputPreparationTrain extends InputPreparation {
 	

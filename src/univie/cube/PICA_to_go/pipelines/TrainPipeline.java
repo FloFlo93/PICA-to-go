@@ -46,6 +46,9 @@ public class TrainPipeline extends BasePicaPipeline {
 				
 		clustering(trainCmdArguments.getClusteringProgram(), inputClusteringDir, trainCmdArguments.getOutputResults(), trainCmdArguments.getAnnotation(), trainCmdArguments.getThreads());
 		
+		//--------------GC-before-PICA-crossval-is-started---------------------------------------------------//
+		
+		System.gc();
 
 	    //-------------------FILTERING-----------------------------------------------------------//
 	    
@@ -104,6 +107,10 @@ public class TrainPipeline extends BasePicaPipeline {
 		} catch (IOException | RuntimeException e) {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.ERROR, "Could not write gene_clusters.json to output directory")).handle();
 		}
+	    
+		//--------------GC-before-PICA-train-is-started---------------------------------------------------//
+		
+		System.gc();
 	    
 	    
 	    //---------------------------PICA---------------------------------------------------------------//

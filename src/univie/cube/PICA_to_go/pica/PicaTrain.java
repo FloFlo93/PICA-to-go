@@ -47,7 +47,7 @@ public class PicaTrain implements Callable<Void> {
 		s.append(ruleFileName);
 		resultFilePathStr = s.toString();
 		
-		String[] picaTrainCommand = {Config.getExecutablePaths().getPICA_TRAIN().toString(), "-s", inputPica.toString(), "-c", inputPhenotypes.toString(), "-o", resultFilePathStr, "-t", feature, "-b", "1"};
+		String[] picaTrainCommand = {Config.getExecutablePaths().getPYTHON_PATH().toString(), Config.getExecutablePaths().getPICA_TRAIN().toString(), "-s", inputPica.toString(), "-c", inputPhenotypes.toString(), "-o", resultFilePathStr, "-t", feature, "-b", "1"};
 		picaTrainCommand = ArrayUtils.addAll(picaTrainCommand, Config.getInstance().getADD_ARG_PICA_TRAIN());
 		Status status = CmdExecution.execute(picaTrainCommand, WorkDir.getWorkDir().getTmpDir(), "pica-train");
 		CmdExecution.printIfErrorOccured(status); 

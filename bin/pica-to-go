@@ -43,18 +43,20 @@ function dependency_java {
 	fi
 }
 
-function dependency_python {
-	local VERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 1)
-	local SUBVERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 2)
-	if [ $VERSION != "2" ]; then
-		echo "#pica-to-go-launcher: Fatal Error: Python2 is not installed or callable via /usr/bin/python. Please install Python 2.7 or a newer Python2 version"
-		exit 1
-	fi
-	if (($SUBVERSION < 7)); then
-		echo "#pica-to-go-launcher: Fatal Error: Your Python2 version is outdated. Please install Python 2.7 or a newer Python2 version"
-		exit 1
-	fi
-}
+
+#function dependency_python {
+#	local VERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 1)
+#	local SUBVERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 2)
+#	if [ $VERSION != "2" ]; then
+#		echo "#pica-to-go-launcher: Fatal Error: Python2 is not installed or callable via /usr/bin/python. Please install Python 2.7 or a newer Python2 version"
+#		exit 1
+#	fi
+#	if (($SUBVERSION < 7)); then
+#		echo "#pica-to-go-launcher: Fatal Error: Your Python2 version is outdated. Please install Python 2.7 or a newer Python2 version"
+#		exit 1
+#	fi
+#}
+
 
 function dependency_python_lib {
 	for i in "${PYTHON_DEPENDENCIES[@]}"
@@ -86,7 +88,8 @@ function mmseqs_version {
 
 dependency_env
 dependency_java
-dependency_python
+#TODO:include again (maybe change dependency python depending if pypy will be used)
+#dependency_python
 dependency_python_lib
 mmseqs_version
 exec_app "$@"
