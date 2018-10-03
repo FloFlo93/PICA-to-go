@@ -56,7 +56,7 @@ The program is currently only available for Linux. There are three possibilies t
 ## Singularity Container (recommended)
 
 1. Install Singularity (see https://www.sylabs.io/singularity/)
-2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0 ``` to download PICA-to-go version 1.0.
+2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0.1 ``` to download PICA-to-go version 1.0.1.
 3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.0.simg ``` with all necessary parameters)
 
 
