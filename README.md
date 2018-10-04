@@ -37,11 +37,13 @@ PICA-to-go is a fast machine learning pipeline for the prediction of microbial p
       * [PICA-to-go predict](#pica-to-go-predict)
          * [Example](#example-1)
          * [Additional options](#additional-options)
+   * [Computational requirements](#computational-requirements)
    * [Data](#data)
       * [Example data](#example-data)
       * [Raw Data](#raw-data)
+   * [Updates](#updates)
+   	* [Version 1.1.0](#version-1.1.0)
 
-<!-- Added by: florian, at: 2018-09-24T17:49+02:00 -->
 
 <!--te-->
 
@@ -56,8 +58,8 @@ The program is currently only available for Linux. There are three possibilies t
 ## Singularity Container (recommended)
 
 1. Install Singularity (see https://www.sylabs.io/singularity/)
-2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.0.1 ``` to download PICA-to-go version 1.0.1.
-3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.0.simg ``` with all necessary parameters)
+2. Type ``` singularity pull shub://FloFlo93/PICA-to-go:1.1.0 ``` to download PICA-to-go version 1.1.0
+3. The Singularity container can be executed as an "ordinary" binary file (e.g. ``` ./FloFlo93-PICA-to-go-master-1.1.0.simg ``` with all necessary parameters)
 
 
 
@@ -245,6 +247,9 @@ PATH_TO_THE_PICA_TO_GO_EXECUTABLE predict -f ciprofloxacin_resistant -i proteins
 PICA-to-go predict provides an option to specify a user defined location for the temporary directory. Furthermore, a translation table can be specified as well as the number of threads. These options are identical to the PICA-to-go train mode.
 
 
+# Computational requirements 
+
+PICA-to-go is able to train machine learning models that consist of less than 500 bins on an ordinary computer (8GB RAM, 4 cores). For models that use a higher amount of bins, a training might not be possible on an ordinary computer as the memory won't be sufficient. In this case, however, it is still possible to run PICA-to-go on a high performance compute cluster. It is highly recommended manually specify a temporary directory on hard disk (per default /tmp/ is used which is often situated in memory) in case the number of bins exceed ~100 (rule of thumb in case 8GB of RAM is available), to reduce the amount of necessary memory. Make sure that the program is allowed to create, read and change files in this directory (otherwise set the permissions using chmod). 
 
 # Data
 
@@ -253,3 +258,14 @@ The program is provided with an example of a model for ciprofloxacin resistance 
 
 ## Raw Data
 The raw data of all models is available under doc/raw_data.tar.xz. This archive contains the phenotype file for all models. The identifier can be used to download all corresponding genomes. After that, PICA-to-go train can be run on all models in order to reproduce the results used in the corresponding masters thesis. Furthermore, there is a statistics subfolder in the archive that contains all tables/plots used in the masters thesis.
+
+
+# Updates 
+
+## Version 1.1.0
+* The RAM requirements of the PICA-to-go pipeline itself has been reduced by using MapDB to store large collections in a file database. 
+* The maximal heap size is not pre-defined (which causes an exception when the available memory is lower on the computer than specified), but the launcher script sets the maximal heap size to the maximal available memory. 
+* The garbage collection is manually called before PICA crossvalidation.py is called, as this tool might need a high amount of RAM.  
+
+
+
