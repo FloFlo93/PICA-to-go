@@ -42,7 +42,7 @@ PICA-to-go is a fast machine learning pipeline for the prediction of microbial p
       * [Example data](#example-data)
       * [Raw Data](#raw-data)
    * [Updates](#updates)
-   	* [Version 1.1.0](#version-1.1.0)
+      * [Version 1.1.0](#version-1.1.0)
 
 
 <!--te-->
