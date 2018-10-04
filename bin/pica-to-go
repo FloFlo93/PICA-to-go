@@ -7,7 +7,7 @@ source "$CONFIG_FILE"
 
 #starts execution of pica-to-go and appends all cmd options to it
 function exec_app {
-	java $JAVA_HEAP_SPACE $ADDITIONAL_JVM_PARAMETERS -jar $DIR/$PICA_TO_GO_JAR $@ launcher
+	java $JVM_SIZE $JAVA_HEAP_SPACE $ADDITIONAL_JVM_PARAMETERS -jar $DIR/$PICA_TO_GO_JAR $@ launcher
 }
 
 # CHECK FOR "GENERAL" DEPENDENCIES (e.g. coreutils commands, make)
@@ -43,6 +43,7 @@ function dependency_java {
 	fi
 }
 
+
 function dependency_python {
 	local VERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 1)
 	local SUBVERSION=$($PYTHON_PATH --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 2)
@@ -55,6 +56,7 @@ function dependency_python {
 		exit 1
 	fi
 }
+
 
 function dependency_python_lib {
 	for i in "${PYTHON_DEPENDENCIES[@]}"
@@ -84,11 +86,18 @@ function mmseqs_version {
 }
 
 
+function determine_jvm_size {
+	JVM_SIZE=$(awk '$1 ~ "MemTotal"{print $2}' /proc/meminfo)
+	JVM_SIZE="-Xmx${JVM_SIZE}K"
+	export JVM_SIZE
+}
+
 dependency_env
 dependency_java
 dependency_python
 dependency_python_lib
 mmseqs_version
+determine_jvm_size
 exec_app "$@"
 
 

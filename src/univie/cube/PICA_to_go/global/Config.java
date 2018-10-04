@@ -25,7 +25,14 @@ public class Config {
 				f.setAccessible(true);
 				Object newVal = null;
 				if (f.getType().equals(Path.class)) {
-					newVal = Paths.get(jarDir.toString(), lineSplit[1].replaceAll("\"", ""));
+					//TODO: continue here
+					String subPathStr = lineSplit[1].replaceAll("\"", "");
+					if(subPathStr.charAt(0) == '/') {
+						newVal = Paths.get(subPathStr);
+					}
+					else {
+						newVal = Paths.get(jarDir.toString(), subPathStr);
+					}
 				}
 				else if(f.getType().equals(String.class)) 
 					newVal = lineSplit[1].replaceAll("\"", "");
@@ -73,6 +80,8 @@ public class Config {
 	private Path PICA_TRAIN;
 	private Path PICA_FEATURER;
 	
+	private Path PYTHON_PATH;
+	
 	private String MMSEQS_VERSION = System.getenv("MMSEQS_VERSION");
 	private Path MMSEQS_AVX2;
 	private Path MMSEQS_SSE41;
@@ -86,8 +95,8 @@ public class Config {
 	private String MMSEQS_C;
 	private String MMSEQS_MIN_SEQ_ID;
 	
-	protected String[] ADD_ARG_MMSEQS_CLUSTER;
-	protected String[] ADD_ARG_MMSEQS_LINCLUST;
+	private String[] ADD_ARG_MMSEQS_CLUSTER;
+	private String[] ADD_ARG_MMSEQS_LINCLUST;
 	
 	//PICA properties 
 	private String[] ADD_ARG_PICA_TRAIN;
@@ -97,6 +106,10 @@ public class Config {
 	
 	public Path getPICA_CROSSVAL() {
 		return PICA_CROSSVAL;
+	}
+	
+	public Path getPYTHON_PATH() {
+		return PYTHON_PATH;
 	}
 
 	public Path getPICA_TEST() {

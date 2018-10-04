@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.mapdb.HTreeMap;
 
 import univie.cube.PICA_to_go.archive.ZipCreator;
 import univie.cube.PICA_to_go.clustering.datatypes.GeneClust4Bin;
@@ -24,6 +25,7 @@ import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.fastaformat.FastaHeaders;
 import univie.cube.PICA_to_go.global.Config;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
+import univie.cube.PICA_to_go.out.logging.CustomLogger;
 
 
 public class MMseqsClustering extends MMSeqs implements Clustering {
@@ -52,6 +54,9 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 		String minSeqId = Config.getExecutablePaths().getMMSEQS_MIN_SEQ_ID(); //min seq id cutoff
 		Path inputFile = concatInputFiles(clusteringDirInput);
 		initializeFastaHeaders(inputFile);
+		
+		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Start to cluster genes using MMSeqs2");
+		
 		String inputDbName = "DB_input.mmseqs";
 		String resultDbName = "DB_clustering.mmseqs";
 		
@@ -98,12 +103,12 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 		return ArrayUtils.addAll(commandClust, addOpt);
 	}
 	
-	private void initializeFastaHeaders(Path concatproteinFile) {
+	private void initializeFastaHeaders(Path concatproteinFile) throws IOException {
 		super.fastaHeaders = FastaHeaders.getFastaHeadersFromConcatproteins(concatproteinFile);
 	}
 	
 	@Override
-	public Map<String, String> getFastaHeaders() {
+	public HTreeMap<String, String> getFastaHeaders() {
 		return super.fastaHeaders;
 	}
 	
@@ -118,13 +123,13 @@ public class MMseqsClustering extends MMSeqs implements Clustering {
 	@Override
 	public Map<String, GeneClust4Bin> getgeneClustersPerBin() throws IOException {
 		if(geneClustersPerBin == null) readResultFileAndParseClustOutput();
-		return this.geneClustersPerBin;
+		return super.geneClustersPerBin;
 	}
 
 	@Override
-	public Map<String, GeneCluster> getgeneClusters() throws IOException {
+	public HTreeMap<String, GeneCluster> getgeneClusters() throws IOException {
 		if(geneClusters == null) readResultFileAndParseClustOutput();
-		return this.geneClusters;
+		return super.geneClusters;
 	}
 	
 	@Override

@@ -1,37 +1,39 @@
 package univie.cube.PICA_to_go.fastaformat;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
+import univie.cube.PICA_to_go.directories.WorkDir;
 import univie.cube.PICA_to_go.miscellaneous.CmdExecution;
+
 
 public class FastaHeaders {
 	
 	private static String binGeneSeperator = "^_";
 	
-	public static Map<String, String> getFastaHeadersFromConcatproteins(Path path) {
-		//get chunks of fasta header + sequence
-		List<String> chunks;
-		try {
-			chunks = Arrays.asList(Files.readAllLines(path).stream()
-									.collect(Collectors.joining("\n"))
-									.split(">"));
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
+	public static HTreeMap<String, String> getFastaHeadersFromConcatproteins(Path path) throws IOException {
+
+		HTreeMap<String, String> fastaHeaders = WorkDir.getWorkDir().getDB().hashMap("fastaHeaders", Serializer.STRING,Serializer.STRING ).create();
+		
+		BufferedReader br = null;
+		br = new BufferedReader(new FileReader(path.toFile()));
+		
+		String line;
+		while((line = br.readLine()) != null) {
+			if(line.charAt(0) != '>') continue;
+			line = line.substring(1);
+			String id = line.split("\\s+")[0];
+			fastaHeaders.put(id, line);
 		}
 		
-		Map<String, String> fastaHeaders = chunks.stream()
-											  .map(line -> line.split("\n")[0]) //extract fasta header
-											  .collect(Collectors.toMap(
-													  fasta -> fasta.split("\\s+")[0], 
-													  fasta -> fasta));
+		br.close();
+		
 		return fastaHeaders;
 	}
+	
 	
 	public static void renameHeader(Path inputFile) throws IOException, InterruptedException {
 		String fileName = inputFile.getFileName().toString();

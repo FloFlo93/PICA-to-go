@@ -33,7 +33,7 @@ public class PicaCrossvalidate extends Pica implements Callable<Map<String, Stri
 	 * @return crossval-json with mean balanced accuracy
 	 */
 	private Map<String, String> crossValPica() throws FileNotFoundException, IOException, InterruptedException {
-		String[] commandPicaCrossVal = {Config.getExecutablePaths().getPICA_CROSSVAL().toString(), "-s", inputPica.toString(), "-c",  inputPhenotypes.toString(), "-t", feature, "-o", outputResults.toString() + "/outputPICA.txt", "-C", outputResults + "/picaCrossValidationStats.json"};  
+		String[] commandPicaCrossVal = {Config.getExecutablePaths().getPYTHON_PATH().toString(), Config.getExecutablePaths().getPICA_CROSSVAL().toString(), "-s", inputPica.toString(), "-c",  inputPhenotypes.toString(), "-t", feature, "-o", outputResults.toString() + "/outputPICA.txt", "-C", outputResults + "/picaCrossValidationStats.json"};  
 		commandPicaCrossVal = ArrayUtils.addAll(commandPicaCrossVal, Config.getInstance().getADD_ARG_PICA_CROSSVAL());
 		CmdExecution.Status status = CmdExecution.execute(commandPicaCrossVal, WorkDir.getWorkDir().getTmpDir(), "pica-crossval"); 
 		CmdExecution.printIfErrorOccured(status); 

@@ -59,6 +59,11 @@ public class PredictPipeline extends BasePicaPipeline {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.FATAL, "inputFile for PICA could not be generated")).handle();
 		}
 		
+		//--------------GC-before-PICA-predict-is-started---------------------------------------------------//
+		
+		System.gc();
+		
+		
 		//-----PICA-PREDICT--------------------------------------//
 		
 		try {

@@ -42,7 +42,7 @@ public abstract class FeatureRanking {
 	
 	public void runFeatureRanking() throws IOException, InterruptedException {
 		CustomLogger.getInstance().log(CustomLogger.LoggingWeight.INFO, "Feature ranking started");
-		String[] command = {Config.getExecutablePaths().getPICA_FEATURER().toString(), modelFile.toString(), "-o", outputResults.toString() + "/" + outputFileNameRaw}; 
+		String[] command = {Config.getExecutablePaths().getPYTHON_PATH().toString(), Config.getExecutablePaths().getPICA_FEATURER().toString(), modelFile.toString(), "-o", outputResults.toString() + "/" + outputFileNameRaw}; 
 		CmdExecution.execute(command, WorkDir.getWorkDir().getTmpDir(), "feature_ranking");
 		
 		List<String> ranks = Files.readAllLines(Paths.get(outputResults.toString(), outputFileNameRaw));

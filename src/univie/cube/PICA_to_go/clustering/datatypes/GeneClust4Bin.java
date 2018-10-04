@@ -1,15 +1,28 @@
 package univie.cube.PICA_to_go.clustering.datatypes;
 
+
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class GeneClust4Bin {
+import org.mapdb.Serializer;
+
+import univie.cube.PICA_to_go.directories.WorkDir;
+
+
+public class GeneClust4Bin implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private String binIdentifier;
-	private Map<String, GeneClusterAbundance> cogAbundances = new LinkedHashMap<String, GeneClusterAbundance>();
+	
+	//
+	private Map<String, GeneClusterAbundance> cogAbundances; 
 	
 	public GeneClust4Bin(String binItentifier) {
 		this.binIdentifier = binItentifier;
+		this.cogAbundances = WorkDir.getWorkDir().getDB()
+								.hashMap("geneClusterAbundances_" + binIdentifier, Serializer.STRING, Serializer.JAVA)
+								.create();
 	}
 	
 	public String getBinIdentifier() {
@@ -62,7 +75,7 @@ public class GeneClust4Bin {
 		return b.toString();
 	}
 	
-	public static class GeneClusterAbundance {
+	public static class GeneClusterAbundance implements Serializable {
 		public GeneCluster geneCluster;
 		public long abundance;
 		
@@ -70,6 +83,7 @@ public class GeneClust4Bin {
 			this.geneCluster = geneCluster; 
 			this.abundance = abundance;
 		}
-	} 
+	}
+
 	
 }

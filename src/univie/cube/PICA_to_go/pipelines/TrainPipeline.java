@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.mapdb.HTreeMap;
 
 import univie.cube.PICA_to_go.cmd.arguments.TrainCmdArguments;
 import univie.cube.PICA_to_go.cmd.parsing.TrainCmdParse;
@@ -45,6 +46,9 @@ public class TrainPipeline extends BasePicaPipeline {
 				
 		clustering(trainCmdArguments.getClusteringProgram(), inputClusteringDir, trainCmdArguments.getOutputResults(), trainCmdArguments.getAnnotation(), trainCmdArguments.getThreads());
 		
+		//--------------GC-before-PICA-crossval-is-started---------------------------------------------------//
+		
+		System.gc();
 
 	    //-------------------FILTERING-----------------------------------------------------------//
 	    
@@ -104,6 +108,10 @@ public class TrainPipeline extends BasePicaPipeline {
 			(new ErrorHandler(e, ErrorHandler.ErrorWeight.ERROR, "Could not write gene_clusters.json to output directory")).handle();
 		}
 	    
+		//--------------GC-before-PICA-train-is-started---------------------------------------------------//
+		
+		System.gc();
+	    
 	    
 	    //---------------------------PICA---------------------------------------------------------------//
 	    
@@ -118,7 +126,7 @@ public class TrainPipeline extends BasePicaPipeline {
 			if(trainCmdArguments.getAnnotation() == Annotation.BLAST)
 				featureRanking = new FeatureRankingBlast(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), super.clusteringInstance, trainCmdArguments.getLimitBlast());
 			else  {
-				Map<String, String> fastaHeaders = super.clusteringInstance.getFastaHeaders();
+				HTreeMap<String, String> fastaHeaders = super.clusteringInstance.getFastaHeaders();
 				featureRanking = new FeatureRankingRefGenome(modelFile, trainCmdArguments.getOutputResults(), trainCmdArguments.getFeatureName(), fastaHeaders, trainCmdArguments.getRefGenomes(), geneClusters);
 			}
 			featureRanking.runFeatureRanking();
