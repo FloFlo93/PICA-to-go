@@ -25,9 +25,14 @@ public class Config {
 				f.setAccessible(true);
 				Object newVal = null;
 				if (f.getType().equals(Path.class)) {
-					//TODO: continue here 
-					if(lineSplit[1].charAt(0) == '\\') newVal = Paths.get(lineSplit[1].replaceAll("\"", ""));
-					else newVal = Paths.get(jarDir.toString(), lineSplit[1].replaceAll("\"", ""));
+					//TODO: continue here
+					String subPathStr = lineSplit[1].replaceAll("\"", "");
+					if(subPathStr.charAt(0) == '/') {
+						newVal = Paths.get(subPathStr);
+					}
+					else {
+						newVal = Paths.get(jarDir.toString(), subPathStr);
+					}
 				}
 				else if(f.getType().equals(String.class)) 
 					newVal = lineSplit[1].replaceAll("\"", "");
@@ -90,8 +95,8 @@ public class Config {
 	private String MMSEQS_C;
 	private String MMSEQS_MIN_SEQ_ID;
 	
-	protected String[] ADD_ARG_MMSEQS_CLUSTER;
-	protected String[] ADD_ARG_MMSEQS_LINCLUST;
+	private String[] ADD_ARG_MMSEQS_CLUSTER;
+	private String[] ADD_ARG_MMSEQS_LINCLUST;
 	
 	//PICA properties 
 	private String[] ADD_ARG_PICA_TRAIN;

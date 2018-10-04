@@ -2,8 +2,7 @@
 
 #----JVM-VARIABLES-----------#
 
-JAVA_HEAP_SPACE="-Xmx3g"
-ADDITIONAL_JVM_PARAMETERS="-Xms100m"
+ADDITIONAL_JVM_PARAMETERS=""
 
 #----MMSeqs-VARIABLES--------# 
 
@@ -58,7 +57,7 @@ PICA_TRAIN="libs/pica/train.py"
 PICA_TEST="libs/pica/test.py"
 
 #TODO: change run script stdout if pypy is used instead of cpython
-PYTHON_PATH="/usr/bin/pypy2.7"
+PYTHON_PATH="/usr/bin/python"
 
 MMSEQS_AVX2="libs/mmseqs2/avx2/bin/mmseqs"
 MMSEQS_SSE41="libs/mmseqs2/sse41/bin/mmseqs"
